@@ -6,6 +6,7 @@ namespace Test.Basic
 open Test.Util (assertEqual State)
 open Wordpuzzle (
   validate Puzzle validateSize validateLetters validateDictionary solve
+  Env runPuzzle
 )
 
 def assertValidation (st : IO.Ref State) (actual : Except (List String) Puzzle)
@@ -134,11 +135,79 @@ def testSolve (st : IO.Ref State) : IO Unit := do
   assertEqual st (toString (repr actualRepeats)) (toString (repr expectedRepeats))
     "solve repeats=true"
 
+structure MockFs where
+  existsMap : List (System.FilePath × Bool)
+  fileMap : List (System.FilePath × Except String (List String))
+  printed : List String
+
+def mkMockEnv (ref : IO.Ref MockFs) : Env IO where
+  pathExists path := do
+    let s ← ref.get
+    match s.existsMap.find? (fun (p, _) => p == path) with
+    | some (_, b) => pure b
+    | none => pure false
+  readLines path := do
+    let s ← ref.get
+    match s.fileMap.find? (fun (p, _) => p == path) with
+    | some (_, res) => pure res
+    | none => pure (Except.error "File not found")
+  println str := do
+    ref.modify (fun s => { s with printed := s.printed ++ [str] })
+
+def testRunPuzzle (st : IO.Ref State) : IO Unit := do
+  IO.println "\n[TEST] Testing Wordpuzzle.Basic.runPuzzle"
+
+  let dict : System.FilePath := "dict.txt"
+  let puzzle := {
+    repeats := false,
+    size := 4,
+    letters := "abcdefg",
+    mandatory := 'a',
+    dictionary := dict
+  }
+
+  -- Test 1: Success scenario
+  let ref1 ← IO.mkRef ({
+    existsMap := [(dict, true)],
+    fileMap := [(dict, Except.ok ["abcd", "xyz"])],
+    printed := []
+  } : MockFs)
+  let code1 ← runPuzzle (mkMockEnv ref1) puzzle
+  assertEqual st code1 0 "runPuzzle success exit code"
+  let s1 ← ref1.get
+  assertEqual st s1.printed ["abcd"] "runPuzzle success output"
+
+  -- Test 2: Missing dictionary file
+  let ref2 ← IO.mkRef ({
+    existsMap := [(dict, false)],
+    fileMap := [],
+    printed := []
+  } : MockFs)
+  let code2 ← runPuzzle (mkMockEnv ref2) puzzle
+  assertEqual st code2 1 "runPuzzle missing file exit code"
+  let s2 ← ref2.get
+  assertEqual st s2.printed ["Dictionary file does not exist"]
+    "runPuzzle missing file output"
+
+  -- Test 3: Read error
+  let ref3 ← IO.mkRef ({
+    existsMap := [(dict, true)],
+    fileMap := [(dict, Except.error "Permission denied")],
+    printed := []
+  } : MockFs)
+  let code3 ← runPuzzle (mkMockEnv ref3) puzzle
+  assertEqual st code3 1 "runPuzzle read error exit code"
+  let s3 ← ref3.get
+  assertEqual st s3.printed
+    ["Failed to read dictionary file: Permission denied"]
+    "runPuzzle read error output"
+
 def runTests (st : IO.Ref State) : IO Unit := do
   testValidateSize st
   testValidateLetters st
   testValidateDictionary st
   testValidate st
   testSolve st
+  testRunPuzzle st
 
 end Test.Basic

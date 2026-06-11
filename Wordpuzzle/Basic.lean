@@ -70,4 +70,26 @@ def solve (puzzle : Puzzle) (dictionaryWords : List String) : List String :=
 
   dictionaryWords.filterMap check
 
+structure Env (m : Type → Type) where
+  pathExists : System.FilePath → m Bool
+  readLines  : System.FilePath → m (Except String (List String))
+  println    : String → m Unit
+
+def runPuzzle [Monad m] (env : Env m) (puzzle : Puzzle) : m UInt32 := do
+  if !(← env.pathExists puzzle.dictionary) then
+    env.println "Dictionary file does not exist"
+    return 1
+  match ← env.readLines puzzle.dictionary with
+  | Except.error err =>
+    env.println s!"Failed to read dictionary file: {err}"
+    return 1
+  | Except.ok lines =>
+    let solutions := solve puzzle lines
+    if solutions.isEmpty then
+      env.println "No words found."
+    else
+      for w in solutions do
+        env.println w
+    return 0
+
 end Wordpuzzle

@@ -2,7 +2,7 @@ import Cli
 import Wordpuzzle.Basic
 
 open Cli
-open Wordpuzzle (validate solve)
+open Wordpuzzle (validate Env runPuzzle)
 
 instance : ParseableType System.FilePath where
   name := "FilePath"
@@ -11,6 +11,16 @@ instance : ParseableType System.FilePath where
 instance : ParseableType Char where
   name := "Char"
   parse? s := if s.length == 1 then some s.front else none
+
+def realEnv : Env IO where
+  pathExists path := System.FilePath.pathExists path
+  readLines path := do
+    try
+      let lines ← IO.FS.lines path
+      pure (Except.ok lines.toList)
+    catch e =>
+      pure (Except.error (toString e))
+  println str := IO.println str
 
 def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
   if !p.hasFlag "letters" || !p.hasFlag "mandatory" then
@@ -28,21 +38,7 @@ def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
     errs.forM IO.println
     return 1
   | Except.ok puzzle =>
-    if !(← System.FilePath.pathExists puzzle.dictionary) then
-      IO.println "Dictionary file does not exist"
-      return 1
-    try
-      let dictionaryLines ← IO.FS.lines puzzle.dictionary
-      let solutions := solve puzzle dictionaryLines.toList
-      if solutions.isEmpty then
-        IO.println "No words found."
-      else
-        for w in solutions do
-          IO.println w
-      return 0
-    catch e =>
-      IO.println s!"Failed to read dictionary file: {e}"
-      return 1
+    runPuzzle realEnv puzzle
 
 def wordpuzzleCmd : Cmd := `[Cli|
   wordpuzzleCmd VIA runWordpuzzleCmd; ["0.1.0"]
