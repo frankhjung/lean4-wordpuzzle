@@ -12,53 +12,47 @@ def assertValidation (st : IO.Ref State) (actual : Except (List String) Puzzle)
   (expected : Except (List String) Puzzle) (msg : String) : IO Unit := do
   assertEqual st (toString (repr actual)) (toString (repr expected)) msg
 
-def assertStringUnitValidation (st : IO.Ref State)
-  (actual : Except String Unit) (expected : Except String Unit)
-  (msg : String) : IO Unit := do
-  assertEqual st (toString (repr actual)) (toString (repr expected)) msg
-
-def assertLettersValidation (st : IO.Ref State)
-  (actual : Except (List String) Unit) (expected : Except (List String) Unit)
-  (msg : String) : IO Unit := do
+def assertErrors (st : IO.Ref State) (actual : List String)
+  (expected : List String) (msg : String) : IO Unit := do
   assertEqual st (toString (repr actual)) (toString (repr expected)) msg
 
 def testValidateSize (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateSize"
 
-  assertStringUnitValidation st (validateSize 3)
-    (Except.error "Size must be between 4 and 9 (got 3)") "size 3 too small"
-  assertStringUnitValidation st (validateSize 4) (Except.ok ()) "size 4 ok"
-  assertStringUnitValidation st (validateSize 9) (Except.ok ()) "size 9 ok"
-  assertStringUnitValidation st (validateSize 10)
-    (Except.error "Size must be between 4 and 9 (got 10)") "size 10 too large"
+  assertErrors st (validateSize 3)
+    ["Size must be between 4 and 9 (got 3)"] "size 3 too small"
+  assertErrors st (validateSize 4) [] "size 4 ok"
+  assertErrors st (validateSize 9) [] "size 9 ok"
+  assertErrors st (validateSize 10)
+    ["Size must be between 4 and 9 (got 10)"] "size 10 too large"
 
 def testValidateLetters (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateLetters"
 
-  assertLettersValidation st (validateLetters "abc")
-    (Except.error ["Letters length must be between 4 and 9 (got 3)"])
+  assertErrors st (validateLetters "abc")
+    ["Letters length must be between 4 and 9 (got 3)"]
     "letters too short"
-  assertLettersValidation st (validateLetters "abcd") (Except.ok ())
+  assertErrors st (validateLetters "abcd") []
     "letters 4 ok"
-  assertLettersValidation st (validateLetters "abcdefghij")
-    (Except.error ["Letters length must be between 4 and 9 (got 10)"])
+  assertErrors st (validateLetters "abcdefghij")
+    ["Letters length must be between 4 and 9 (got 10)"]
     "letters too long"
-  assertLettersValidation st (validateLetters "abcD")
-    (Except.error ["Letters must all be lowercase alphabetic characters"])
+  assertErrors st (validateLetters "abcD")
+    ["Letters must all be lowercase alphabetic characters"]
     "letters uppercase"
-  assertLettersValidation st (validateLetters "abca")
-    (Except.error ["Letters must be unique"]) "letters duplicate"
-  assertLettersValidation st (validateLetters "abcDDA")
-    (Except.error [
+  assertErrors st (validateLetters "abca")
+    ["Letters must be unique"] "letters duplicate"
+  assertErrors st (validateLetters "abcDDA")
+    [
       "Letters must all be lowercase alphabetic characters",
       "Letters must be unique"
-    ]) "letters uppercase and duplicate"
+    ] "letters uppercase and duplicate"
 
 def testValidateDictionary (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateDictionary"
 
   let dict : System.FilePath := "dictionary"
-  assertStringUnitValidation st (validateDictionary dict) (Except.ok ())
+  assertErrors st (validateDictionary dict) []
     "dictionary ok"
 
 def testValidate (st : IO.Ref State) : IO Unit := do

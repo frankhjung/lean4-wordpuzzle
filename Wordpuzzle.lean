@@ -2,7 +2,7 @@ import Cli
 import Wordpuzzle.Basic
 
 open Cli
-open Wordpuzzle (hello validate solve)
+open Wordpuzzle (validate solve)
 
 instance : ParseableType System.FilePath where
   name := "FilePath"
