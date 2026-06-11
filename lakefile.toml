@@ -1,0 +1,32 @@
+name = "Wordpuzzle"
+version = "0.1.0"
+defaultTargets = ["wordpuzzle"]
+lintDriver = "linter"
+testDriver = "wordpuzzle_test"
+
+[[lean_lib]]
+name = "Wordpuzzle"
+
+[[lean_exe]]
+name = "wordpuzzle"
+root = "Wordpuzzle"
+
+[[lean_lib]]
+name = "Test"
+
+[[lean_exe]]
+name = "wordpuzzle_test"
+root = "Test"
+
+[[require]]
+scope = "leanprover"
+name = "doc-gen4"
+rev = "v4.31.0-rc2"  # Matches your toolchain version
+
+[[lean_exe]]
+name = "linter"
+root = "Linter"
+
+[[dependency]]
+name = "cli"
+src = { git = "https://github.com/leanprover/lean4-cli.git", rev = "main" }

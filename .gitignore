@@ -1,0 +1,10 @@
+.elan/
+.lake/
+*.olean
+*.olean.lock
+*.trace
+/.lake
+build/
+docbuild/.lake
+docbuild/.lake/**
+lake-packages/

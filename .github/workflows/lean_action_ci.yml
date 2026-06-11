@@ -1,0 +1,64 @@
+---
+name: lean-action-ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: leanprover/lean-action@v1
+      - name: Build project and run tests
+        run: |
+          lake build
+          lake lint
+          lake test
+          lake exe wordpuzzle
+          lake exe wordpuzzle -s 4 -m c -l cadevrsoi
+
+  docs:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: leanprover/lean-action@v1
+      - name: Build documentation
+        run: |
+          cd docbuild
+          lake update doc-gen4
+          lake build Wordpuzzle:docs
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: "docbuild/.lake/build/doc"
+
+  pages:
+    needs: docs
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
