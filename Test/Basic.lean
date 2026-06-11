@@ -6,7 +6,7 @@ namespace Test.Basic
 open Test.Util (assertEqual State)
 open Wordpuzzle (
   validate Puzzle validateSize validateLetters validateDictionary solve
-  Env runPuzzle mkPuzzleForTest
+  Env runPuzzle mkPuzzleForTest formatSolutions
 )
 
 def assertValidation (st : IO.Ref State) (actual : Except (List String) Puzzle)
@@ -178,6 +178,14 @@ def testRunPuzzle (st : IO.Ref State) : IO Unit := do
     ["Failed to read dictionary file: Permission denied"]
     "runPuzzle read error output"
 
+def testFormatSolutions (st : IO.Ref State) : IO Unit := do
+  IO.println "\n[TEST] Testing Wordpuzzle.Basic.formatSolutions"
+
+  assertEqual st (formatSolutions []) "No words found."
+    "format empty solutions"
+  assertEqual st (formatSolutions ["abcd", "xyz"]) "abcd\nxyz"
+    "format non-empty solutions"
+
 def runTests (st : IO.Ref State) : IO Unit := do
   testValidateSize st
   testValidateLetters st
@@ -185,5 +193,6 @@ def runTests (st : IO.Ref State) : IO Unit := do
   testValidate st
   testSolve st
   testRunPuzzle st
+  testFormatSolutions st
 
 end Test.Basic

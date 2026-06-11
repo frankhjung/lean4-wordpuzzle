@@ -81,6 +81,12 @@ structure Env (m : Type → Type) where
   readLines  : System.FilePath → m (Except String (List String))
   println    : String → m Unit
 
+def formatSolutions (solutions : List String) : String :=
+  if solutions.isEmpty then
+    "No words found."
+  else
+    String.intercalate "\n" solutions
+
 def runPuzzle [Monad m] (env : Env m) (puzzle : Puzzle) : m UInt32 := do
   if !(← env.pathExists puzzle.dictionary) then
     env.println "Dictionary file does not exist"
@@ -91,11 +97,7 @@ def runPuzzle [Monad m] (env : Env m) (puzzle : Puzzle) : m UInt32 := do
     return 1
   | Except.ok lines =>
     let solutions := solve puzzle lines
-    if solutions.isEmpty then
-      env.println "No words found."
-    else
-      for w in solutions do
-        env.println w
+    env.println (formatSolutions solutions)
     return 0
 
 end Wordpuzzle

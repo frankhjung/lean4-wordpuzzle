@@ -1,15 +1,18 @@
 # Word Puzzle Solver
 
-A Lean 4 implementation of the Word Puzzle Solver algorithm.
+A Lean 4 implementation of a word puzzle solver.
 
 ## About
 
-The **Word Puzzle Solver** is an simple solving word puzzles where you are given a set of letters and must form words that contain the mandatory
-character and are at least _n_ characters long. For example: this solves [New York Times Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee).
+The **Word Puzzle Solver** is a simple solver for word puzzles where you
+are given a set of letters and must form words that contain the mandatory
+character and are at least _n_ characters long. For example, this solves
+the [New York Times Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee).
 
 ## Installation
 
-This project requires Lean 4. You can install it using [Elan](https://github.com/leanprover/elan).
+This project requires Lean 4. You can install it using
+[Elan](https://github.com/leanprover/elan).
 
 **Linux/macOS:**
 
@@ -19,30 +22,43 @@ curl https://raw.githubusercontent.com/leanprover/elan/master/toolchain.sh | sh
 
 ## Usage
 
-To run the project:
+To run the project, use the provided `Makefile` utility target:
 
 ```bash
-lake env lean --run Wordpuzzle.lean
+make exe
 ```
 
-The program will execute the word puzzle solver and print the solution
-to the console.
+This will run the executable with a sample word puzzle. Alternatively, run
+the binary directly using Lake:
+
+```bash
+lake exe wordpuzzle -s 7 -m c -l cadevrsoi
+```
 
 ## Development
 
-To work on the project:
+A `Makefile` is provided to simplify development and testing targets.
 
 ```bash
 # Build the project
-lake build
+make build
 
-# Run tests (if any)
-lake test
+# Run the unit test suite
+make test
+
+# Run the linter
+make lint
+
+# Generate documentation
+make doc
 ```
 
 ### Project Structure
 
-- `Wordpuzzle.lean`: Contains the main logic and solver.
+- `Wordpuzzle.lean`: The entry point and command-line interface adapter.
+- `Wordpuzzle/Basic.lean`: The core solver logic, smart constructors,
+  validation rules, and capability interfaces.
+- `Test/Basic.lean`: Unit tests for the validation, solver, and runner.
 - `lakefile.toml`: Build configuration for Lake (Lean's package manager).
 
 ## License
