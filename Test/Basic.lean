@@ -6,7 +6,7 @@ namespace Test.Basic
 open Test.Util (assertEqual State)
 open Wordpuzzle (
   validate Puzzle validateSize validateLetters validateDictionary solve
-  Env runPuzzle
+  Env runPuzzle mkPuzzleForTest
 )
 
 def assertValidation (st : IO.Ref State) (actual : Except (List String) Puzzle)
@@ -64,13 +64,7 @@ def testValidate (st : IO.Ref State) : IO Unit := do
   -- Test 1: Valid input
   assertValidation st
     (validate false 4 "abcd" 'a' dict)
-    (Except.ok {
-      repeats := false,
-      size := 4,
-      letters := "abcd",
-      mandatory := 'a',
-      dictionary := dict
-    })
+    (Except.ok (mkPuzzleForTest false 4 "abcd" 'a' dict))
     "valid input"
 
   -- Test 2: Size too small
@@ -107,13 +101,7 @@ def testSolve (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.solve"
 
   let dict : System.FilePath := "dictionary"
-  let puzzle := {
-    repeats := false,
-    size := 4,
-    letters := "abcdefg",
-    mandatory := 'a',
-    dictionary := dict
-  }
+  let puzzle := mkPuzzleForTest false 4 "abcdefg" 'a' dict
 
   let words := ["abcd", "abcc", "bcde", "abcdefg", "Abcd ", "xyz"]
   let expected := ["abcd", "abcdefg", "Abcd"]
@@ -122,13 +110,7 @@ def testSolve (st : IO.Ref State) : IO Unit := do
   assertEqual st (toString (repr actual)) (toString (repr expected))
     "solve repeats=false"
 
-  let puzzleRepeats := {
-    repeats := true,
-    size := 4,
-    letters := "abcdefg",
-    mandatory := 'a',
-    dictionary := dict
-  }
+  let puzzleRepeats := mkPuzzleForTest true 4 "abcdefg" 'a' dict
   let expectedRepeats := ["abcd", "abcc", "abcdefg", "Abcd"]
   let actualRepeats := solve puzzleRepeats words
 
@@ -158,13 +140,7 @@ def testRunPuzzle (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.runPuzzle"
 
   let dict : System.FilePath := "dict.txt"
-  let puzzle := {
-    repeats := false,
-    size := 4,
-    letters := "abcdefg",
-    mandatory := 'a',
-    dictionary := dict
-  }
+  let puzzle := mkPuzzleForTest false 4 "abcdefg" 'a' dict
 
   -- Test 1: Success scenario
   let ref1 ← IO.mkRef ({

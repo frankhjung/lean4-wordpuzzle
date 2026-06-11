@@ -1,12 +1,18 @@
 namespace Wordpuzzle
 
 structure Puzzle where
+  private mk ::
   repeats : Bool
   size : Nat
   letters : String
   mandatory : Char
   dictionary : System.FilePath
   deriving Repr
+
+/-- Unsafe constructor helper for testing purposes. -/
+def mkPuzzleForTest (repeats : Bool) (size : Nat) (letters : String)
+  (mandatory : Char) (dictionary : System.FilePath) : Puzzle :=
+  { repeats, size, letters, mandatory, dictionary }
 
 def hasDuplicates {α : Type} [BEq α] : List α → Bool
   | [] => false
