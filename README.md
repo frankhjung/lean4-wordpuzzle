@@ -1,4 +1,4 @@
-# Word Puzzle Solver
+## Word Puzzle Solver
 
 A Lean 4 implementation of a word puzzle solver.
 
@@ -39,11 +39,11 @@ graph TD
   WP -->|Calls| Smart
 ```
 
-* **Pure Core**: Contains pure business rules, validation logic, solutions
+- **Pure Core**: Contains pure business rules, validation logic, solutions
   solver, formatting, and the control-flow runner.
-* **Polymorphic Boundary**: The `Env` Capability Interface isolates console
+- **Polymorphic Boundary**: The `Env` Capability Interface isolates console
   printing and file operations.
-* **Effectful Shell**: The CLI adapter implements the environment and handles
+- **Effectful Shell**: The CLI adapter implements the environment and handles
   system CLI arguments.
 
 ## Installation
@@ -88,6 +88,21 @@ make lint
 
 # Generate documentation
 make doc
+```
+
+### Documentation
+
+To generate the project documentation locally, run:
+
+```bash
+make doc
+```
+
+Once generated, serve the documentation locally to view it
+[here](docbuild/.lake/build/doc/Wordpuzzle.html), or by invoking:
+
+```bash
+python3 -m http.server --directory docbuild/.lake/build/doc 8000
 ```
 
 ### Project Structure
