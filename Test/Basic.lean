@@ -3,7 +3,7 @@ import Test.Util
 
 namespace Test.Basic
 
-open Test.Util (assertEqual State)
+open Test.Util (assertEqual State MockFs mkMockEnv)
 open Wordpuzzle (
   validate Puzzle validateSize validateLetters validateDictionary solve
   Env runPuzzle mkPuzzleForTest formatSolutions
@@ -117,24 +117,6 @@ def testSolve (st : IO.Ref State) : IO Unit := do
   assertEqual st (toString (repr actualRepeats)) (toString (repr expectedRepeats))
     "solve repeats=true"
 
-structure MockFs where
-  existsMap : List (System.FilePath × Bool)
-  fileMap : List (System.FilePath × Except String (List String))
-  printed : List String
-
-def mkMockEnv (ref : IO.Ref MockFs) : Env IO where
-  pathExists path := do
-    let s ← ref.get
-    match s.existsMap.find? (fun (p, _) => p == path) with
-    | some (_, b) => pure b
-    | none => pure false
-  readLines path := do
-    let s ← ref.get
-    match s.fileMap.find? (fun (p, _) => p == path) with
-    | some (_, res) => pure res
-    | none => pure (Except.error "File not found")
-  println str := do
-    ref.modify (fun s => { s with printed := s.printed ++ [str] })
 
 def testRunPuzzle (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.runPuzzle"
