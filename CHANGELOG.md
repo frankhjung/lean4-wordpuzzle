@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added compile-time version extraction from `lakefile.toml` to bake the
-  version string directly into the executable as a constant, ensuring it
-  remains fully standalone.
+- Added application version constant in `Wordpuzzle/Config.lean` to bake the
+  version string directly into the executable, ensuring it remains fully
+  standalone.
 - Added `isAsciiLower` guard to strictly enforce ASCII lowercase (`a`–`z`)
   letters during puzzle validation, correctly rejecting Unicode lowercase
   characters (e.g. `é`).

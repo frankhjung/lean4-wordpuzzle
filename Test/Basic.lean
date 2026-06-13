@@ -1,5 +1,5 @@
 import Wordpuzzle.Basic
-import Wordpuzzle.Version
+import Wordpuzzle.Config
 import Test.Util
 open Wordpuzzle (appVersion)
 
@@ -95,18 +95,18 @@ def testValidateLetters (st : IO.Ref State) : IO Unit := do
     ["Letters length must be between 4 and 9 (got 10)"]
     "letters too long"
   assertErrors st (validateLetters "abcD")
-    ["Letters must all be ASCII lowercase letters (a\u2013z)"]
+    ["Letters must all be ASCII lowercase letters (a-z)"]
     "letters uppercase"
   assertErrors st (validateLetters "abca")
     ["Letters must be unique"] "letters duplicate"
   assertErrors st (validateLetters "abcDDA")
     [
-      "Letters must all be ASCII lowercase letters (a\u2013z)",
+      "Letters must all be ASCII lowercase letters (a-z)",
       "Letters must be unique"
     ] "letters uppercase and duplicate"
   -- C1: Unicode lowercase is now rejected.
   assertErrors st (validateLetters "ab\u00e9d")
-    ["Letters must all be ASCII lowercase letters (a\u2013z)"]
+    ["Letters must all be ASCII lowercase letters (a-z)"]
     "letters unicode lowercase rejected"
 
 /-!
@@ -120,7 +120,7 @@ def testValidateMandatory (st : IO.Ref State) : IO Unit := do
     "mandatory ok"
   assertErrors st (validateMandatory 'A' "abcd")
     [
-      "Mandatory letter must be an ASCII lowercase letter (a\u2013z)",
+      "Mandatory letter must be an ASCII lowercase letter (a-z)",
       "Mandatory letter must be one of the puzzle letters"
     ] "mandatory uppercase"
   assertErrors st (validateMandatory 'z' "abcd")
@@ -128,7 +128,7 @@ def testValidateMandatory (st : IO.Ref State) : IO Unit := do
     "mandatory not in letters"
   -- C1: Unicode lowercase mandatory is now rejected.
   assertErrors st (validateMandatory '\u00e9' "ab\u00e9d")
-    ["Mandatory letter must be an ASCII lowercase letter (a\u2013z)"]
+    ["Mandatory letter must be an ASCII lowercase letter (a-z)"]
     "mandatory unicode lowercase rejected"
 
 /-!
@@ -157,7 +157,7 @@ def testValidate (st : IO.Ref State) : IO Unit := do
     (validate false 3 "abcD" 'a' dict)
     [
       "Size must be between 4 and 9 (got 3)",
-      "Letters must all be ASCII lowercase letters (a\u2013z)"
+      "Letters must all be ASCII lowercase letters (a-z)"
     ]
     "multiple validation errors"
 
@@ -171,7 +171,7 @@ def testValidate (st : IO.Ref State) : IO Unit := do
   assertValidErr st
     (validate false 4 "abcd" 'A' dict)
     [
-      "Mandatory letter must be an ASCII lowercase letter (a\u2013z)",
+      "Mandatory letter must be an ASCII lowercase letter (a-z)",
       "Mandatory letter must be one of the puzzle letters"
     ]
     "mandatory letter not lowercase"

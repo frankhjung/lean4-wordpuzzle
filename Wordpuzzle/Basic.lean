@@ -54,7 +54,7 @@ def validateSize (size : Nat) : List String :=
 
 Checks that:
 1. The length of `letters` is in [4, 9].
-2. Every character is an ASCII lowercase letter (`a`–`z`).
+2. Every character is an ASCII lowercase letter (`a`-`z`).
 3. No character appears more than once.
 
 Returns a (possibly empty) list of error messages, one per failed
@@ -66,7 +66,7 @@ def validateLetters (letters : String) : List String :=
     (len < 4 || len > 9,
      s!"Letters length must be between 4 and 9 (got {len})"),
     (!chars.all isAsciiLower,
-     "Letters must all be ASCII lowercase letters (a\u2013z)"),
+     "Letters must all be ASCII lowercase letters (a-z)"),
     (hasDuplicates chars,
      "Letters must be unique")
   ]
@@ -84,7 +84,7 @@ def validateMandatory (mandatory : Char) (letters : String) :
     List String :=
   let conds := [
     (!isAsciiLower mandatory,
-     "Mandatory letter must be an ASCII lowercase letter (a\u2013z)"),
+     "Mandatory letter must be an ASCII lowercase letter (a-z)"),
     (!letters.contains mandatory,
      "Mandatory letter must be one of the puzzle letters")
   ]

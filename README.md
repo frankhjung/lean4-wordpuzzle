@@ -1,34 +1,34 @@
-# Word Puzzle Solver
+# Word puzzle solver
 
 A Lean 4 implementation of a word puzzle solver.
 
 ## About
 
-The **Word Puzzle Solver** finds words from a dictionary that can be
+The **Word puzzle solver** finds words from a dictionary that can be
 formed using a given set of ASCII lowercase letters (`a`–`z`).  Every
 candidate word must contain a mandatory letter and be at least *n*
 characters long.  Optionally, letter reuse within a single word can
 be permitted.
 
 This solves puzzles such as the
-[New York Times Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee).
+[New York Times spelling bee](https://www.nytimes.com/puzzles/spelling-bee).
 
 ## Architecture
 
-The project follows the **Functional Core, Imperative Shell** pattern,
+The project follows the **functional core, imperative shell** pattern,
 pushing all side-effects to the application boundary.
 
 ```mermaid
 graph TD
-  subgraph Shell ["Effectful Shell (CLI Adapter)"]
+  subgraph Shell ["Effectful shell (CLI adapter)"]
     WP["Wordpuzzle.lean (main)"]
   end
 
-  subgraph Boundary ["Polymorphic Boundary"]
+  subgraph Boundary ["Polymorphic boundary"]
     Env["Env (Capability Interface)"]
   end
 
-  subgraph Core ["Pure Core Logic"]
+  subgraph Core ["Pure core logic"]
     Runner["runPuzzle (Runner)"]
     Smart["validate (Smart Constructor)"]
     Solver["solve (Solver Logic)"]
@@ -43,11 +43,11 @@ graph TD
   WP -->|Calls| Smart
 ```
 
-- **Pure Core** — Contains pure business rules, validation logic,
+- **Pure core** — Contains pure business rules, validation logic,
   the solver, formatting, and the control-flow runner.
-- **Polymorphic Boundary** — The `Env` capability interface isolates
+- **Polymorphic boundary** — The `Env` capability interface isolates
   console printing and file operations behind a monad parameter.
-- **Effectful Shell** — The CLI adapter implements the environment
+- **Effectful shell** — The CLI adapter implements the environment
   and handles system CLI arguments.
 
 ## Installation
@@ -58,7 +58,8 @@ This project requires Lean 4.  Install it using
 **Linux/macOS:**
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh
+curl -sSf \
+  https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh
 ```
 
 ## Usage
@@ -79,7 +80,7 @@ lake exe wordpuzzle -s 7 -m c -l cadevrsoi
 
 | Flag                 | Description                                           |
 | -------------------- | ----------------------------------------------------- |
-| `-r`, `--repeats`    | Allow letters to repeat (like NYT Spelling Bee)       |
+| `-r`, `--repeats`    | Allow letters to repeat (like NYT spelling bee)       |
 | `-s`, `--size`       | Minimum word size, 4–9 (default: `4`)                 |
 | `-l`, `--letters`    | Unique ASCII lowercase letters to form words, 4–9     |
 | `-m`, `--mandatory`  | ASCII lowercase letter that must appear in every word |
@@ -120,14 +121,14 @@ python3 -m http.server \
   --directory docbuild/.lake/build/doc 8000
 ```
 
-### Project Structure
+### Project structure
 
 ```text
 ├── Wordpuzzle.lean         Entry point and CLI adapter
 ├── Wordpuzzle/
 │   ├── Basic.lean          Core logic: Puzzle, validation,
 │   │                       solver, Env, runner
-│   └── Version.lean        Compile-time version extraction
+│   └── Config.lean         Application configuration constants
 ├── Test.lean               Test harness entry point
 ├── Test/
 │   ├── Basic.lean          Unit tests for validation,

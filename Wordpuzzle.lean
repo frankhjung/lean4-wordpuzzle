@@ -1,6 +1,6 @@
 import Cli
 import Wordpuzzle.Basic
-import Wordpuzzle.Version
+import Wordpuzzle.Config
 
 open Cli
 open Wordpuzzle (validate Env runPuzzle appVersion)
