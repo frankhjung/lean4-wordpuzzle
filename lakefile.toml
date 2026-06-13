@@ -1,5 +1,5 @@
 name = "Wordpuzzle"
-version = "0.1.0"
+version = "0.1.0-dev"
 defaultTargets = ["wordpuzzle"]
 lintDriver = "linter"
 testDriver = "wordpuzzle_test"
@@ -29,4 +29,4 @@ root = "Linter"
 
 [[dependency]]
 name = "cli"
-src = { git = "https://github.com/leanprover/lean4-cli.git", rev = "main" }
+src = { git = "https://github.com/leanprover/lean4-cli.git", rev = "baf3e62fbb3502305076ca077e004aea78157c63" }

@@ -23,7 +23,7 @@ test: ## Run the tests using Lake
 	@$(LAKE) test
 
 exe: ## Run the `wordpuzzle` executable with a sample name
-	@$(LAKE) exe wordpuzzle -s 7 -m c -l cadevrsoi
+	@$(LAKE) exe wordpuzzle -s 6 -m c -l cadevrsoi
 
 lint: ## Run the linter
 	@$(LAKE) lint
