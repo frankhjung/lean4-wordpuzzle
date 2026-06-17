@@ -1,7 +1,11 @@
 .DEFAULT_GOAL := default
 
 CD	:= cd
-LEAN_PREFIX := $(shell lean --print-prefix)
+LEAN_PREFIX := $(shell lean --print-prefix 2>/dev/null)
+ifeq ($(LEAN_PREFIX),)
+	@echo "Lean not found. Please ensure Lean 4 is installed and available in your PATH."
+	@exit 1
+endif
 LAKE	:= LD_LIBRARY_PATH="$(LEAN_PREFIX)/lib" lake
 RM	:= rm -rf
 
