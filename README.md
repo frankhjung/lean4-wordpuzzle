@@ -113,12 +113,22 @@ To generate the project documentation locally:
 make doc
 ```
 
-Once generated, serve it locally to view at
+Once generated, serve it locally at
 [http://localhost:8000](http://localhost:8000):
 
 ```bash
 python3 -m http.server \
   --directory docbuild/.lake/build/doc 8000
+```
+
+Or view via a browser:
+
+```bash
+# Default Browser
+exo-open --launch www docbuild/.lake/build/doc/index.html
+
+# Google Chrome
+google-chrome docbuild/.lake/build/doc/index.html
 ```
 
 ### Project structure

@@ -3,8 +3,8 @@
 CD	:= cd
 LEAN_PREFIX := $(shell lean --print-prefix 2>/dev/null)
 ifeq ($(LEAN_PREFIX),)
-	@echo "Lean not found. Please ensure Lean 4 is installed and available in your PATH."
-	@exit 1
+	echo Lean not found. Please ensure Lean 4 is installed and available in your PATH.
+	exit 1
 endif
 LAKE	:= LD_LIBRARY_PATH="$(LEAN_PREFIX)/lib" lake
 RM	:= rm -rf
@@ -37,9 +37,13 @@ doc: ## Generate documentation using Lake
 	$(LAKE) update doc-gen4 && \
 	$(LAKE) build Wordpuzzle:docs
 
+viewdoc: ## View generated documentation locally
+	@exo-open --launch WebBrowser docbuild/.lake/build/doc/index.html
+
 update: ## Update the dependencies using Lake
 	@$(LAKE) update
-	@$(CD) docbuild && $(LAKE) update doc-gen4
+	@$(CD) docbuild && \
+	$(LAKE) update doc-gen4
 
 clean: ## Clean the build artifacts
 	@$(LAKE) clean
