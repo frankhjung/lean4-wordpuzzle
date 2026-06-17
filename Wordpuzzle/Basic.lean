@@ -1,3 +1,5 @@
+import Batteries.Tactic.Lint
+
 namespace Wordpuzzle
 
 /-- Represents a word-puzzle configuration.
@@ -14,12 +16,21 @@ Fields:
                  solving. -/
 structure Puzzle where
   private mk ::
+  /-- Whether letters can be repeated in the candidate word. -/
   repeats : Bool
+  /-- The minimum size/length of the words to be found. -/
   size : Nat
+  /-- The pool of unique ASCII lowercase letters. -/
   letters : String
+  /-- The mandatory character that every solution must contain. -/
   mandatory : Char
+  /-- The path to the word dictionary file. -/
   dictionary : System.FilePath
-  deriving Repr, Inhabited
+  deriving Inhabited
+
+deriving instance Repr for Puzzle
+
+attribute [nolint unusedArguments] instReprPuzzle.repr
 
 /-- Returns `true` when the character is an ASCII lowercase letter
 (`a`–`z`).
@@ -146,8 +157,11 @@ Fields:
                  string on failure.
 - `println`    – writes a line to standard output. -/
 structure Env (m : Type → Type) where
+  /-- Checks whether a file-system path exists. -/
   pathExists : System.FilePath → m Bool
+  /-- Reads all lines from a file, returning an error on failure. -/
   readLines  : System.FilePath → m (Except String (List String))
+  /-- Writes a line to standard output. -/
   println    : String → m Unit
 
 /-- Formats a list of solutions for display.

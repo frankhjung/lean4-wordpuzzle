@@ -103,6 +103,9 @@ make lint
 
 # Generate documentation
 make doc
+
+# View documentation locally
+make viewdoc
 ```
 
 ### Documentation
@@ -124,11 +127,7 @@ python3 -m http.server \
 Or view via a browser:
 
 ```bash
-# Default Browser
-exo-open --launch www docbuild/.lake/build/doc/index.html
-
-# Google Chrome
-google-chrome docbuild/.lake/build/doc/index.html
+make viewdoc
 ```
 
 ### Project structure
@@ -145,7 +144,6 @@ google-chrome docbuild/.lake/build/doc/index.html
 │   |                       solver, and runner
 │   └── Util.lean           Test utilities: assertions,
 │                           mock environment
-├── Linter.lean             Lint driver (placeholder)
 ├── GLOSSARY.md             Domain terminology
 ├── lakefile.toml           Lake build configuration
 └── lean-toolchain          Lean toolchain version

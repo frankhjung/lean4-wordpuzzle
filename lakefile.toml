@@ -18,15 +18,11 @@ root = "Wordpuzzle"
 name = "wordpuzzle_test"
 root = "Test"
 
-# [[require]]
-# scope = "leanprover"
-# name = "doc-gen4"
-# rev = "v4.31.0"  # matches toolchain version
-
 [[require]]
 name = "batteries"
 scope = "leanprover-community"
 
-[[dependency]]
+[[require]]
 name = "cli"
-src = { git = "https://github.com/leanprover/lean4-cli.git", rev = "baf3e62fbb3502305076ca077e004aea78157c63" }
+git = "https://github.com/leanprover/lean4-cli.git"
+rev = "baf3e62fbb3502305076ca077e004aea78157c63"

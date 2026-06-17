@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `viewdoc` target in `Makefile` to view generated documentation locally.
 - Added application version constant in `Wordpuzzle/Config.lean` to bake the
   version string directly into the executable, ensuring it remains fully
   standalone.
@@ -22,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Upgraded Lean toolchain to `v4.31.0`.
+- Improved `Makefile` error handling to explicitly report if Lean is not found
+  in `PATH`.
+- Migrated lint driver to `batteries/runLinter`.
+- Updated `lint` target in `Makefile` to include the `--lint-all` flag.
+- Updated `README.md` to include commands for opening generated documentation in
+  a web browser.
 - Refactored `solve` to bind string-to-list conversions once per word and
   hoist invariant puzzle characters, improving search performance.
 - Pinned `Cli` dependency to a specific commit hash in `lakefile.toml` to
@@ -34,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed custom `linter` executable in favor of `batteries/runLinter`.
 - Removed the `validateDictionary` pure validation stub as dictionary existence
   is correctly handled at runtime by `Env.pathExists`.
 - Removed `mkPuzzleForTest` unsafe constructor from the public API.

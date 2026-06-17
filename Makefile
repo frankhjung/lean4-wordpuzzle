@@ -3,8 +3,7 @@
 CD	:= cd
 LEAN_PREFIX := $(shell lean --print-prefix 2>/dev/null)
 ifeq ($(LEAN_PREFIX),)
-	echo Lean not found. Please ensure Lean 4 is installed and available in your PATH.
-	exit 1
+$(error Lean not found. Please ensure Lean 4 is installed and available in your PATH.)
 endif
 LAKE	:= LD_LIBRARY_PATH="$(LEAN_PREFIX)/lib" lake
 RM	:= rm -rf
@@ -18,19 +17,26 @@ all: build test lint doc ## Build, test, lint and generate documentation
 help: ## Show this help message
 	@echo ""
 	@echo "Default goal: ${.DEFAULT_GOAL}"
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN { \
+	FS = ":.*##"; \
+	printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} \
+	/^[a-zA-Z_-]+:.*?##/ \
+	{ printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' \
+	$(MAKEFILE_LIST)
 
 build: ## Build the project using Lake
 	@$(LAKE) build
 
 test: ## Run the tests using Lake
+	@$(LAKE) check-test
 	@$(LAKE) test
 
 exe: ## Run the `wordpuzzle` executable with a sample name
 	@$(LAKE) exe wordpuzzle -s 6 -m c -l cadevrsoi
 
 lint: ## Run the linter
-	@$(LAKE) lint
+	@$(LAKE) check-lint
+	@$(LAKE) lint --lint-all
 
 doc: ## Generate documentation using Lake
 	@$(CD) docbuild && \
