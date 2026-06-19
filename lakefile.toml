@@ -6,7 +6,8 @@ testDriver = "wordpuzzle_test"
 
 [[lean_lib]]
 name = "Wordpuzzle"
-globs = ["Wordpuzzle.+"]
+globs = ["Wordpuzzle", "Wordpuzzle.+"]
+
 
 [[lean_lib]]
 name = "Test"

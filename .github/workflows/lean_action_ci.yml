@@ -27,42 +27,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Cache Lake build directory
-        uses: actions/cache@v4
-        with:
-          path: .lake
-          key: "lake-\
-            ${{ runner.os }}-\
-            ${{ runner.arch }}-\
-            ${{ hashFiles('lean-toolchain') }}-\
-            ${{ hashFiles('lake-manifest.json') }}-\
-            ${{ github.ref_name }}-\
-            ${{ github.sha }}"
-          restore-keys: "lake-\
-            ${{ runner.os }}-\
-            ${{ runner.arch }}-\
-            ${{ hashFiles('lean-toolchain') }}-\
-            ${{ hashFiles('lake-manifest.json') }}-\
-            ${{ github.ref_name }}-\n\
-            lake-\
-            ${{ runner.os }}-\
-            ${{ runner.arch }}-\
-            ${{ hashFiles('lean-toolchain') }}-\
-            ${{ hashFiles('lake-manifest.json') }}-\
-            main-\n\
-            lake-\
-            ${{ runner.os }}-\
-            ${{ runner.arch }}-\
-            ${{ hashFiles('lean-toolchain') }}-\
-            ${{ hashFiles('lake-manifest.json') }}-"
+          fetch-depth: 1
 
       - name: Build and lint the project
         id: build-lean
         uses: leanprover/lean-action@v1
-        with:
-          use-github-cache: "false"
 
       - name: Run executable smoke-tests
         run: |
