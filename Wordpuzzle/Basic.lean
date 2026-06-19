@@ -123,18 +123,16 @@ A candidate word is accepted when all of the following hold:
 
 Returns the accepted word (trimmed) as `some String`, or `none` if the
 word is rejected. -/
-def solve (puzzle : Puzzle) (word : String) : Option String :=
-  let mandatory := puzzle.mandatory
-  let puzzleChars := puzzle.letters.toList
-  let cleanWord := word.trimAscii.toString
-  let chars := cleanWord.toList
-  if chars.length >= puzzle.size && -- valid word size (4-9 inclusive)
-     cleanWord.contains mandatory && -- word has mandatory letter
-     chars.all (fun c => puzzleChars.contains c) && -- word has valid letters
-     (puzzle.repeats || !hasDuplicates chars) -- toggle duplicates letters
-  then
-    some cleanWord  -- valid word
-  else
-    none            -- invalid word, skip
+def solve (puzzle : Puzzle) (word : String) : Option String := do
+  let puzzleChars := puzzle.letters.toList -- puzzle as chars
+  let cleanWord := word.trimAscii.toString -- trim word
+  let wordChars := cleanWord.toList        -- words as chars
+  guard (
+    wordChars.length >= puzzle.size && -- valid word size (4-9 inclusive)
+    cleanWord.contains puzzle.mandatory && -- word has mandatory letter
+    wordChars.all (fun c => puzzleChars.contains c) && -- word has valid letters
+    (puzzle.repeats || !hasDuplicates wordChars) -- check against repeats flag
+  )
+  return cleanWord
 
 end Wordpuzzle
