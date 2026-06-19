@@ -23,6 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Corrected and updated inline documentation for the `solve` function in
+  `Wordpuzzle/Basic.lean` and the `mkTestPuzzle` helper in `Test/Basic.lean`
+  to fix typos and align with the signature refactoring.
+- Updated `GLOSSARY.md` to adhere to Markdown heading standards (using H2/H3
+  headings) and added a definition for the nested `docbuild` directory.
+- Refactored the solver to stream the dictionary file line-by-line using
+  `IO.FS.Handle` rather than loading the entire dictionary list in memory.
+- Simplified package structure: made `Wordpuzzle/Basic.lean` pure by removing
+  the polymorphic capability interface (`Env`) and moving all console I/O
+  and file streaming to the boundary in `Wordpuzzle.lean`.
+- Updated the unit test suite to test pure validation and single-word solver
+  logic, eliminating mock environments and environment runners.
+- Switched the GitHub Actions documentation workflow (`lean_action_ci.yml`)
+  to use the official `leanprover-community/docgen-action`.
 - Upgraded Lean toolchain to `v4.31.0`.
 - Improved `Makefile` error handling to explicitly report if Lean is not found
   in `PATH`.
@@ -42,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed the `Env` capability interface, `runPuzzle` runner, and
+  `formatSolutions` helper from `Wordpuzzle/Basic.lean`.
+- Removed `realEnv` from `Wordpuzzle.lean`.
+- Removed `MockFs` and `mkMockEnv` from `Test/Util.lean`.
 - Removed custom `linter` executable in favor of `batteries/runLinter`.
 - Removed the `validateDictionary` pure validation stub as dictionary existence
   is correctly handled at runtime by `Env.pathExists`.

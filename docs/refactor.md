@@ -70,9 +70,14 @@ and tasks:
    - Updated [Test/Basic.lean][test-basic] to remove the `dictionary`
      parameter from `mkTestPuzzle` and `testValidate`, rewrite `testSolve` to
      test individual words, and remove `testRunPuzzle`/`testFormatSolutions`.
+4. **Update CI Workflow**:
+   - Replaced the manual documentation compilation steps in
+     [lean_action_ci.yml][ci-wf] with the official `docgen-action`.
+   - Consolidated the `docs` and `pages` jobs into a single `docs` job.
 
 [wp-main]: file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle.lean
 [wp-basic]: file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean
 [test-util]: file:///home/frank/dev/lean/wordpuzzle/Test/Util.lean
 [test-basic]: file:///home/frank/dev/lean/wordpuzzle/Test/Basic.lean
-
+[ci-wf]:
+  file:///home/frank/dev/lean/wordpuzzle/.github/workflows/lean_action_ci.yml

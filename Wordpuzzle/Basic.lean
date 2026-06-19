@@ -11,9 +11,7 @@ Fields:
 - `letters`    – the pool of unique ASCII lowercase letters available
                  to form words.
 - `mandatory`  – a letter from `letters` that every valid word must
-                 contain.
-- `dictionary` – path to the newline-separated word list used for
-                 solving. -/
+                 contain. -/
 structure Puzzle where
   private mk ::
   /-- Whether letters can be repeated in the candidate word. -/
@@ -114,17 +112,17 @@ def validate (repeats : Bool) (size : Nat) (letters : String)
   else
     Except.error errs
 
-/-- Finds all valid words for a given puzzle from a word list.
+/-- Solves a word puzzle for a single candidate word.
 
-A candidate word from `dictionaryWords` is accepted when all of the
-following hold:
-- Its is at least `puzzle.size` characters long.
+A candidate word is accepted when all of the following hold:
+- Its length is at least `puzzle.size` characters.
 - Every character appears in `puzzle.letters`.
 - It contains `puzzle.mandatory`.
 - When `puzzle.repeats` is `false`, no character appears more than
   once.
 
-Returns the accepted words (trimmed). -/
+Returns the accepted word (trimmed) as `some String`, or `none` if the
+word is rejected. -/
 def solve (puzzle : Puzzle) (word : String) : Option String :=
   let mandatory := puzzle.mandatory
   let puzzleChars := puzzle.letters.toList

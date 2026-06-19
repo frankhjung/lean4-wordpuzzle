@@ -2,20 +2,27 @@
 
 ## Dictionary
 
-The list of candidate words searched to solve the puzzle.  Not the
-same as the word list containing only valid solutions.  Supplied as
+The list of candidate words searched to solve the puzzle. Not the
+same as the word list containing only valid solutions. Supplied as
 a newline-separated file via the `--dictionary` flag.
+
+## Docbuild
+
+An isolated nested package (located in the `docbuild` directory)
+specifically configured to generate project API documentation using
+`doc-gen4`. Keeping it separate avoids polluting the main package
+with documentation tool dependencies.
 
 ## Letters
 
 The pool of 4–9 unique ASCII lowercase characters (`a`–`z`) from
-which candidate words are formed.  Unicode lowercase codepoints
+which candidate words are formed. Unicode lowercase codepoints
 (e.g. `é`, `ñ`) are rejected at validation time.
 
 ## Mandatory Letter
 
-The single character that must appear in every solved word.  In
-spelling bee puzzles, this is typically the centre letter.  Must be
+The single character that must appear in every solved word. In
+spelling bee puzzles, this is typically the centre letter. Must be
 one of the puzzle's letters.
 
 ## Puzzle
@@ -28,7 +35,7 @@ raw `mk` constructor is `private`.
 ## Repeats
 
 A boolean flag controlling whether a letter from the pool may appear
-more than once within a single candidate word.  When enabled, the
+more than once within a single candidate word. When enabled, the
 solver mirrors the rules of the NYT Spelling Bee.
 
 ## Smart Constructor

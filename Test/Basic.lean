@@ -16,7 +16,7 @@ open Wordpuzzle (
 -/
 
 /-- Builds a `Puzzle` via `validate` for use in tests that need a
-valid puzzle as *input* (e.g. `solve`, `runPuzzle`).
+valid puzzle as *input* (e.g. `solve`).
 
 Panics at test runtime if the arguments are themselves invalid,
 which keeps the helper honest: it only works when the supplied

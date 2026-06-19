@@ -3,7 +3,7 @@
  "packages":
  [{"type": "path",
    "scope": "",
-   "name": "learning",
+   "name": "Wordpuzzle",
    "manifestFile": "lake-manifest.json",
    "inherited": false,
    "dir": "../",

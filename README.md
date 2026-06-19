@@ -99,6 +99,11 @@ make viewdoc
 
 ### Documentation
 
+> [!NOTE]
+> Local documentation generation is rarely needed as documentation is
+> automatically built and hosted on GitHub Pages via CI using the
+> `leanprover-community/docgen-action`.
+
 To generate the project documentation locally:
 
 ```bash
