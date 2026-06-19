@@ -45,13 +45,11 @@ doc: ## Generate documentation using Lake
 viewdoc: ## View generated documentation locally
 	@exo-open --launch WebBrowser docbuild/.lake/build/doc/index.html
 
+clean: ## Clean the build artifacts
+	@$(LAKE) clean
+	@$(CD) docbuild && $(LAKE) clean
+
 update: ## Update the dependencies using Lake
 	@$(LAKE) update
 	@$(CD) docbuild && \
 	$(LAKE) update doc-gen4
-
-clean: ## Clean the build artifacts
-	@$(LAKE) clean
-
-cleanall: ## Completely clean the project by removing build artifacts and the build directory
-	@$(RM) .lake docbuild/.lake
