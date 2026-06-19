@@ -40,7 +40,6 @@ lint: ## Run the linter
 
 doc: ## Generate documentation using Lake
 	@$(CD) docbuild && \
-	$(LAKE) update doc-gen4 && \
 	$(LAKE) build Wordpuzzle:docs
 
 viewdoc: ## View generated documentation locally

@@ -20,35 +20,24 @@ pushing all side-effects to the application boundary.
 
 ```mermaid
 graph TD
-  subgraph Shell ["Effectful shell (CLI adapter)"]
+  subgraph Shell ["Effectful shell (CLI adapter & streaming)"]
     WP["Wordpuzzle.lean (main)"]
   end
 
-  subgraph Boundary ["Polymorphic boundary"]
-    Env["Env (Capability Interface)"]
-  end
-
   subgraph Core ["Pure core logic"]
-    Runner["runPuzzle (Runner)"]
     Smart["validate (Smart Constructor)"]
     Solver["solve (Solver Logic)"]
-    Format["formatSolutions (Formatter)"]
   end
 
-  WP -->|Configures & runs| Runner
-  WP -->|Implements| Env
-  Runner -->|Calls| Env
-  Runner -->|Calls| Solver
-  Runner -->|Calls| Format
   WP -->|Calls| Smart
+  WP -->|Streams & calls| Solver
 ```
 
 - **Pure core** — Contains pure business rules, validation logic,
-  the solver, formatting, and the control-flow runner.
-- **Polymorphic boundary** — The `Env` capability interface isolates
-  console printing and file operations behind a monad parameter.
-- **Effectful shell** — The CLI adapter implements the environment
-  and handles system CLI arguments.
+  and the single-word solver logic.
+- **Effectful shell** — The CLI adapter and runner. It parses CLI
+  arguments, validates parameters, streams the dictionary file,
+  and prints matching words to standard output.
 
 ## Installation
 
@@ -135,15 +124,12 @@ make viewdoc
 ```text
 ├── Wordpuzzle.lean         Entry point and CLI adapter
 ├── Wordpuzzle/
-│   ├── Basic.lean          Core logic: Puzzle, validation,
-│   │                       solver, Env, runner
+│   ├── Basic.lean          Core logic: Puzzle, validation, solver
 │   └── Config.lean         Application configuration constants
 ├── Test.lean               Test harness entry point
 ├── Test/
-│   ├── Basic.lean          Unit tests for validation,
-│   |                       solver, and runner
-│   └── Util.lean           Test utilities: assertions,
-│                           mock environment
+│   ├── Basic.lean          Unit tests for validation and solver
+│   └── Util.lean           Test utilities: assertion helpers
 ├── GLOSSARY.md             Domain terminology
 ├── lakefile.toml           Lake build configuration
 └── lean-toolchain          Lean toolchain version

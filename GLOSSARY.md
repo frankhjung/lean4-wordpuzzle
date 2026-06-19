@@ -1,12 +1,5 @@
 # Glossary
 
-## Capability Interface
-
-A structure (here `Env`) parameterised by a monad that abstracts
-side-effectful operations such as file access and console output.
-Production code supplies `IO`; tests supply a mock backed by
-`IO.Ref`.
-
 ## Dictionary
 
 The list of candidate words searched to solve the puzzle.  Not the
@@ -28,9 +21,9 @@ one of the puzzle's letters.
 ## Puzzle
 
 The validated configuration containing the allowed letters, the
-mandatory letter, the minimum word size, the repeat permission, and
-the dictionary path.  Constructed exclusively through `validate`
-(a smart constructor); the raw `mk` constructor is `private`.
+mandatory letter, the minimum word size, and the repeat permission.
+Constructed exclusively through `validate` (a smart constructor); the
+raw `mk` constructor is `private`.
 
 ## Repeats
 
@@ -47,6 +40,7 @@ feedback in one attempt.
 
 ## Solver
 
-The pure function (`solve`) that filters the dictionary and returns
-matching words based on the puzzle configuration.  It operates on a
-`List String` and produces a `List String`, with no monadic effects.
+The pure function (`solve`) that checks a single candidate word from the
+dictionary against the puzzle configuration. It takes a `Puzzle` and a
+`String` ("word") and returns an `Option String`, with no monadic
+effects.

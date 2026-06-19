@@ -24,8 +24,6 @@ structure Puzzle where
   letters : String
   /-- The mandatory character that every solution must contain. -/
   mandatory : Char
-  /-- The path to the word dictionary file. -/
-  dictionary : System.FilePath
   deriving Inhabited
 
 deriving instance Repr for Puzzle
@@ -107,13 +105,12 @@ Runs all field validators in sequence and collects every error
 message.  Returns `Except.ok puzzle` when there are no errors, or
 `Except.error errs` with the full list of messages otherwise. -/
 def validate (repeats : Bool) (size : Nat) (letters : String)
-    (mandatory : Char) (dictionary : System.FilePath) :
-    Except (List String) Puzzle :=
+    (mandatory : Char) : Except (List String) Puzzle :=
   let errs := validateSize size ++
               validateLetters letters ++
               validateMandatory mandatory letters
   if errs.isEmpty then
-    Except.ok { repeats, size, letters, mandatory, dictionary }
+    Except.ok { repeats, size, letters, mandatory }
   else
     Except.error errs
 
@@ -121,81 +118,25 @@ def validate (repeats : Bool) (size : Nat) (letters : String)
 
 A candidate word from `dictionaryWords` is accepted when all of the
 following hold:
-- Its lowercase form is at least `puzzle.size` characters long.
-- Every character in its lowercase form appears in `puzzle.letters`.
+- Its is at least `puzzle.size` characters long.
+- Every character appears in `puzzle.letters`.
 - It contains `puzzle.mandatory`.
 - When `puzzle.repeats` is `false`, no character appears more than
   once.
 
-Returns the accepted words in their original (trimmed) casing. -/
-def solve (puzzle : Puzzle) (dictionaryWords : List String) :
-    List String :=
+Returns the accepted words (trimmed). -/
+def solve (puzzle : Puzzle) (word : String) : Option String :=
   let mandatory := puzzle.mandatory
   let puzzleChars := puzzle.letters.toList
-  let check (word : String) : Option String :=
-    let cleanWord := word.trimAscii.toString
-    let lowerWord := cleanWord.toLower
-    let chars := lowerWord.toList
-    if chars.length >= puzzle.size &&
-       chars.all (fun c => puzzleChars.contains c) &&
-       lowerWord.contains mandatory &&
-       (puzzle.repeats || !hasDuplicates chars) then
-      some cleanWord
-    else
-      none
-  dictionaryWords.filterMap check
-
-/-- Abstraction over side-effectful environment operations.
-
-Parameterised by a monad `m` so that the core logic in `runPuzzle`
-can be tested without real I/O by substituting a pure or mock
-monad.
-
-Fields:
-- `pathExists` – checks whether a file-system path exists.
-- `readLines`  – reads all lines from a file, returning an error
-                 string on failure.
-- `println`    – writes a line to standard output. -/
-structure Env (m : Type → Type) where
-  /-- Checks whether a file-system path exists. -/
-  pathExists : System.FilePath → m Bool
-  /-- Reads all lines from a file, returning an error on failure. -/
-  readLines  : System.FilePath → m (Except String (List String))
-  /-- Writes a line to standard output. -/
-  println    : String → m Unit
-
-/-- Formats a list of solutions for display.
-
-Returns `"No words found."` when `solutions` is empty; otherwise
-joins the words with newline characters. -/
-def formatSolutions (solutions : List String) : String :=
-  if solutions.isEmpty then
-    "No words found."
+  let cleanWord := word.trimAscii.toString
+  let chars := cleanWord.toList
+  if chars.length >= puzzle.size && -- valid word size (4-9 inclusive)
+     cleanWord.contains mandatory && -- word has mandatory letter
+     chars.all (fun c => puzzleChars.contains c) && -- word has valid letters
+     (puzzle.repeats || !hasDuplicates chars) -- toggle duplicates letters
+  then
+    some cleanWord  -- valid word
   else
-    String.intercalate "\n" solutions
-
-/-- Runs a puzzle against its dictionary file using the supplied
-`Env`.
-
-1. Checks that the dictionary path exists; prints an error and
-   returns exit code `1` if not.
-2. Reads the dictionary lines; prints an error and returns `1` on
-   failure.
-3. Solves the puzzle and prints the formatted solutions.
-
-Returns `0` on success, `1` on any I/O or file error. -/
-def runPuzzle [Monad m] (env : Env m) (puzzle : Puzzle) :
-    m UInt32 := do
-  if !(← env.pathExists puzzle.dictionary) then
-    env.println "Dictionary file does not exist"
-    return 1
-  match ← env.readLines puzzle.dictionary with
-  | Except.error err =>
-    env.println s!"Failed to read dictionary file: {err}"
-    return 1
-  | Except.ok lines =>
-    let solutions := solve puzzle lines
-    env.println (formatSolutions solutions)
-    return 0
+    none            -- invalid word, skip
 
 end Wordpuzzle

@@ -5,10 +5,10 @@ open Wordpuzzle (appVersion)
 
 namespace Test.Basic
 
-open Test.Util (assertEqual State MockFs mkMockEnv)
+open Test.Util (assertEqual State)
 open Wordpuzzle (
   validate Puzzle validateSize validateLetters validateMandatory
-  solve Env runPuzzle formatSolutions
+  solve
 )
 
 /-!
@@ -22,8 +22,8 @@ Panics at test runtime if the arguments are themselves invalid,
 which keeps the helper honest: it only works when the supplied
 values actually pass validation. -/
 def mkTestPuzzle (repeats : Bool) (size : Nat) (letters : String)
-    (mandatory : Char) (dictionary : System.FilePath) : Puzzle :=
-  match validate repeats size letters mandatory dictionary with
+    (mandatory : Char) : Puzzle :=
+  match validate repeats size letters mandatory with
   | Except.ok p  => p
   | Except.error errs =>
       panic! s!"mkTestPuzzle: invalid arguments: {errs}"
@@ -39,8 +39,7 @@ def assertErrors (st : IO.Ref State) (actual : List String)
 def assertValidOk (st : IO.Ref State)
     (result : Except (List String) Puzzle)
     (repeats : Bool) (size : Nat) (letters : String)
-    (mandatory : Char) (dictionary : System.FilePath)
-    (msg : String) : IO Unit :=
+    (mandatory : Char) (msg : String) : IO Unit :=
   match result with
   | Except.error errs =>
     assertEqual st (toString (repr errs)) "Except.ok _"
@@ -50,7 +49,6 @@ def assertValidOk (st : IO.Ref State)
     assertEqual st p.size       size       s!"{msg}: size"
     assertEqual st p.letters    letters    s!"{msg}: letters"
     assertEqual st p.mandatory  mandatory  s!"{msg}: mandatory"
-    assertEqual st p.dictionary dictionary s!"{msg}: dictionary"
 
 /-- Asserts that a `validate` call returns the given error list. -/
 def assertValidErr (st : IO.Ref State)
@@ -138,23 +136,21 @@ def testValidateMandatory (st : IO.Ref State) : IO Unit := do
 def testValidate (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validate"
 
-  let dict : System.FilePath := "dictionary"
-
   -- Valid input: check every field of the returned Puzzle.
   assertValidOk st
-    (validate false 4 "abcd" 'a' dict)
-    false 4 "abcd" 'a' dict
+    (validate false 4 "abcd" 'a')
+    false 4 "abcd" 'a'
     "valid input"
 
   -- Individual field failures.
   assertValidErr st
-    (validate false 3 "abcd" 'a' dict)
+    (validate false 3 "abcd" 'a')
     ["Size must be between 4 and 9 (got 3)"]
     "size too small"
 
   -- Multiple errors accumulate.
   assertValidErr st
-    (validate false 3 "abcD" 'a' dict)
+    (validate false 3 "abcD" 'a')
     [
       "Size must be between 4 and 9 (got 3)",
       "Letters must all be ASCII lowercase letters (a-z)"
@@ -163,13 +159,13 @@ def testValidate (st : IO.Ref State) : IO Unit := do
 
   -- Mandatory character not in letters.
   assertValidErr st
-    (validate false 4 "abcd" 'z' dict)
+    (validate false 4 "abcd" 'z')
     ["Mandatory letter must be one of the puzzle letters"]
     "mandatory letter not in letters"
 
   -- Mandatory character not lowercase.
   assertValidErr st
-    (validate false 4 "abcd" 'A' dict)
+    (validate false 4 "abcd" 'A')
     [
       "Mandatory letter must be an ASCII lowercase letter (a-z)",
       "Mandatory letter must be one of the puzzle letters"
@@ -183,92 +179,29 @@ def testValidate (st : IO.Ref State) : IO Unit := do
 def testSolve (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.solve"
 
-  let dict : System.FilePath := "dictionary"
-
-  let puzzle := mkTestPuzzle false 4 "abcdefg" 'a' dict
-  let words :=
-    ["abcd", "abcc", "bcde", "abcdefg", "Abcd ", "xyz"]
-  let expected := ["abcd", "abcdefg", "Abcd"]
-  let actual := solve puzzle words
+  let puzzle := mkTestPuzzle false 4 "abcdefg" 'a'
 
   assertEqual st
-    (toString (repr actual)) (toString (repr expected))
-    "solve repeats=false"
-
-  let puzzleRepeats := mkTestPuzzle true 4 "abcdefg" 'a' dict
-  let expectedRepeats := ["abcd", "abcc", "abcdefg", "Abcd"]
-  let actualRepeats := solve puzzleRepeats words
-
+    (solve puzzle "abcd") (some "abcd") "solve abcd"
   assertEqual st
-    (toString (repr actualRepeats))
-    (toString (repr expectedRepeats))
-    "solve repeats=true"
+    (solve puzzle "abcc") none "solve abcc (duplicates)"
+  assertEqual st
+    (solve puzzle "bcde") none "solve bcde (missing mandatory)"
+  assertEqual st
+    (solve puzzle "abcdefg") (some "abcdefg") "solve abcdefg"
+  assertEqual st
+    (solve puzzle "Abcd ") (none) "solve Abcd (case sensitive)"
+  assertEqual st
+    (solve puzzle "xyz") none "solve xyz (invalid letters)"
 
-/-!
-## runPuzzle
--/
-
-def testRunPuzzle (st : IO.Ref State) : IO Unit := do
-  IO.println "\n[TEST] Testing Wordpuzzle.Basic.runPuzzle"
-
-  let dict : System.FilePath := "dict.txt"
-  let puzzle := mkTestPuzzle false 4 "abcdefg" 'a' dict
-
-  -- Test 1: Success scenario.
-  let ref1 ← IO.mkRef ({
-    existsMap := [(dict, true)],
-    fileMap := [(dict, Except.ok ["abcd", "xyz"])],
-    printed := []
-  } : MockFs)
-  let code1 ← runPuzzle (mkMockEnv ref1) puzzle
-  assertEqual st code1 0 "runPuzzle success exit code"
-  let s1 ← ref1.get
-  assertEqual st s1.printed ["abcd"]
-    "runPuzzle success output"
-
-  -- Test 2: Missing dictionary file.
-  let ref2 ← IO.mkRef ({
-    existsMap := [(dict, false)],
-    fileMap := [],
-    printed := []
-  } : MockFs)
-  let code2 ← runPuzzle (mkMockEnv ref2) puzzle
-  assertEqual st code2 1
-    "runPuzzle missing file exit code"
-  let s2 ← ref2.get
-  assertEqual st s2.printed
-    ["Dictionary file does not exist"]
-    "runPuzzle missing file output"
-
-  -- Test 3: Read error.
-  let ref3 ← IO.mkRef ({
-    existsMap := [(dict, true)],
-    fileMap := [(dict, Except.error "Permission denied")],
-    printed := []
-  } : MockFs)
-  let code3 ← runPuzzle (mkMockEnv ref3) puzzle
-  assertEqual st code3 1
-    "runPuzzle read error exit code"
-  let s3 ← ref3.get
-  assertEqual st s3.printed
-    ["Failed to read dictionary file: Permission denied"]
-    "runPuzzle read error output"
-
-/-!
-## formatSolutions
--/
+  let puzzleRepeats := mkTestPuzzle true 4 "abcdefg" 'a'
+  assertEqual st
+    (solve puzzleRepeats "abcc") (some "abcc")
+    "solve abcc with repeats"
 
 def testVersion (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing version extraction"
   assertEqual st appVersion "0.1.0-dev" "appVersion matches lakefile"
-
-def testFormatSolutions (st : IO.Ref State) : IO Unit := do
-  IO.println "\n[TEST] Testing Wordpuzzle.Basic.formatSolutions"
-
-  assertEqual st (formatSolutions []) "No words found."
-    "format empty solutions"
-  assertEqual st (formatSolutions ["abcd", "xyz"]) "abcd\nxyz"
-    "format non-empty solutions"
 
 /-!
 ## Entry point
@@ -280,8 +213,6 @@ def runTests (st : IO.Ref State) : IO Unit := do
   testValidateMandatory st
   testValidate st
   testSolve st
-  testRunPuzzle st
-  testFormatSolutions st
   testVersion st
 
 end Test.Basic
