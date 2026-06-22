@@ -67,14 +67,8 @@ via `Wordpuzzle.validate`, and streams the dictionary to filter
 words via `Wordpuzzle.solve`.
 
 Returns exit code `0` on success, or `1` when validation fails, the
-dictionary is missing, or an I/O error occurs. Prints help and
-returns `0` when the mandatory `--letters` or `--mandatory` flags
-are absent. -/
+dictionary is missing, or an I/O error occurs. -/
 def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
-  if !p.hasFlag "letters" || !p.hasFlag "mandatory" then
-    p.printHelp
-    return (0 : UInt32)
-
   let repeats := p.hasFlag "repeats"
   let size := (p.flag! "size").as! Nat
   let letters := (p.flag! "letters").as! String
@@ -112,6 +106,7 @@ def wordpuzzleCmd : Cmd := `[Cli|
     d, dictionary : System.FilePath; "Dictionary to search for words"
 
   EXTENSIONS:
+    require! #["letters", "mandatory"];
     defaultValues! #[("size", "4"), ("dictionary", "dictionary")]
   ]
 
