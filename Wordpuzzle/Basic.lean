@@ -2,6 +2,25 @@ import Batteries.Tactic.Lint
 
 namespace Wordpuzzle
 
+/-- Returns `true` when the character is an ASCII lowercase letter
+(`a`–`z`).
+
+Unicode lowercase codepoints such as `'é'` or `'ñ'` are excluded
+to match the ASCII-only constraint of word puzzles. -/
+private def isAsciiLower (c : Char) : Bool :=
+  decide ('a' ≤ c ∧ c ≤ 'z')
+
+/-- Returns `true` when the list contains at least one duplicated
+element.
+
+Uses a linear scan; each element is checked for membership in the
+remainder of the list, giving O(n²) time.  This is adequate for
+the short lists encountered in word-puzzle solving (≤ 9 letters,
+short dictionary words). -/
+def hasDuplicates {α : Type} [BEq α] : List α → Bool
+  | [] => false
+  | x :: xs => xs.contains x || hasDuplicates xs
+
 /-- Represents a word-puzzle configuration.
 
 Fields:
@@ -22,30 +41,36 @@ structure Puzzle where
   letters : String
   /-- The mandatory character that every solution must contain. -/
   mandatory : Char
-  deriving Inhabited
+  /-- Proof that size is between 4 and 9 inclusive. -/
+  h_size : 4 ≤ size ∧ size ≤ 9
+  /-- Proof that letters length is between 4 and 9 inclusive. -/
+  h_letters_len : 4 ≤ letters.length ∧ letters.length ≤ 9
+  /-- Proof that letters are all ASCII lowercase. -/
+  h_letters_lower : letters.toList.all isAsciiLower = true
+  /-- Proof that letters contain no duplicates. -/
+  h_letters_unique : hasDuplicates letters.toList = false
+  /-- Proof that the mandatory character is ASCII lowercase. -/
+  h_mandatory_lower : isAsciiLower mandatory = true
+  /-- Proof that the mandatory character is in letters. -/
+  h_mandatory_in : letters.toList.contains mandatory = true
+
+instance : Inhabited Puzzle where
+  default := {
+    repeats := false
+    size := 4
+    letters := "abcd"
+    mandatory := 'a'
+    h_size := by decide
+    h_letters_len := by decide
+    h_letters_lower := by rfl
+    h_letters_unique := by rfl
+    h_mandatory_lower := by rfl
+    h_mandatory_in := by decide
+  }
 
 deriving instance Repr for Puzzle
 
 attribute [nolint unusedArguments] instReprPuzzle.repr
-
-/-- Returns `true` when the character is an ASCII lowercase letter
-(`a`–`z`).
-
-Unicode lowercase codepoints such as `'é'` or `'ñ'` are excluded
-to match the ASCII-only constraint of word puzzles. -/
-private def isAsciiLower (c : Char) : Bool :=
-  decide ('a' ≤ c ∧ c ≤ 'z')
-
-/-- Returns `true` when the list contains at least one duplicated
-element.
-
-Uses a linear scan; each element is checked for membership in the
-remainder of the list, giving O(n²) time.  This is adequate for
-the short lists encountered in word-puzzle solving (≤ 9 letters,
-short dictionary words). -/
-def hasDuplicates {α : Type} [BEq α] : List α → Bool
-  | [] => false
-  | x :: xs => xs.contains x || hasDuplicates xs
 
 /-- Validates the `size` field of a puzzle.
 
@@ -108,7 +133,23 @@ def validate (repeats : Bool) (size : Nat) (letters : String)
               validateLetters letters ++
               validateMandatory mandatory letters
   if errs.isEmpty then
-    Except.ok { repeats, size, letters, mandatory }
+    if h : (4 ≤ size ∧ size ≤ 9) ∧
+           (4 ≤ letters.length ∧ letters.length ≤ 9) ∧
+           (letters.toList.all isAsciiLower = true) ∧
+           (hasDuplicates letters.toList = false) ∧
+           (isAsciiLower mandatory = true) ∧
+           (letters.toList.contains mandatory = true) then
+      Except.ok {
+        repeats, size, letters, mandatory,
+        h_size := h.1,
+        h_letters_len := h.2.1,
+        h_letters_lower := h.2.2.1,
+        h_letters_unique := h.2.2.2.1,
+        h_mandatory_lower := h.2.2.2.2.1,
+        h_mandatory_in := h.2.2.2.2.2
+      }
+    else
+      Except.error errs
   else
     Except.error errs
 

@@ -39,9 +39,34 @@ graph TD
   arguments, validates parameters, streams the dictionary file,
   and prints matching words to standard output.
 
-## Installation
+### The Correctness-by-Construction Puzzle Type
 
-This project requires Lean 4.  Install it using
+In [`Wordpuzzle/Basic.lean`](
+file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean), the `Puzzle`
+type is defined as a structure bundling both the configuration data and
+mathematical proofs of its invariants. This correctness-by-construction pattern
+guarantees that any instanced `Puzzle` is valid:
+
+- `repeats : Bool` — Letter reuse flag.
+- `size : Nat` — Minimum word length.
+- `letters : String` — Pool of unique lowercase ASCII characters.
+- `mandatory : Char` — The compulsory letter.
+- `h_size` — Proof that `4 ≤ size ∧ size ≤ 9`.
+- `h_letters_len` — Proof that letters pool length is between 4 and 9.
+- `h_letters_lower` — Proof that all pool characters are lowercase ASCII.
+- `h_letters_unique` — Proof that the pool contains no duplicate characters.
+- `h_mandatory_lower` — Proof that the mandatory character is lowercase ASCII.
+- `h_mandatory_in` — Proof that the mandatory character is in the pool.
+
+Because the constructor `Puzzle.mk` is private, instances can only be
+created via [`validate`](
+file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean#L117-L141). This
+smart constructor runs the validators and uses Lean's decidability to produce
+the required proof terms at runtime.
+
+## Installation & Building
+
+This project requires Lean 4. Install it using
 [Elan](https://github.com/leanprover/elan):
 
 **Linux/macOS:**
@@ -49,6 +74,34 @@ This project requires Lean 4.  Install it using
 ```bash
 curl -sSf \
   https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh
+```
+
+Once elan is installed, configure the default toolchain to stable:
+
+```bash
+elan default stable
+```
+
+### Building the Project
+
+You can compile the project using either the `Makefile` wrapper or raw
+`lake` commands.
+
+**Using Makefile:**
+
+```bash
+# Build the default targets (library)
+make build
+```
+
+**Using Lake:**
+
+```bash
+# Build the default targets (library)
+lake build
+
+# Build the wordpuzzle binary specifically
+lake build wordpuzzle
 ```
 
 ## Usage
@@ -71,8 +124,8 @@ lake exe wordpuzzle -s 7 -m c -l cadevrsoi
 | -------------------- | ----------------------------------------------------- |
 | `-r`, `--repeats`    | Allow letters to repeat (like NYT spelling bee)       |
 | `-s`, `--size`       | Minimum word size, 4–9 (default: `4`)                 |
-| `-l`, `--letters`    | Unique ASCII lowercase letters to form words, 4–9     |
-| `-m`, `--mandatory`  | ASCII lowercase letter that must appear in every word |
+| `-l`, `--letters`    | [Required] Unique ASCII lowercase letters, 4–9        |
+| `-m`, `--mandatory`  | [Required] Mandatory ASCII lowercase letter           |
 | `-d`, `--dictionary` | Path to the dictionary file (default: `dictionary`)   |
 
 ## Development
