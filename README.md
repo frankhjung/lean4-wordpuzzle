@@ -191,6 +191,19 @@ make viewdoc
 └── lean-toolchain          Lean toolchain version
 ```
 
+## Other Implementations
+
+The Word Puzzle solver is my standard project to learn and compare a programming
+language. It has  been implemented in other languages:
+
+- [Clojure](https://github.com/frankhjung/clojure-wordpuzzle)
+- [Flutter](https://github.com/frankhjung/haskell-wordpuzzle)
+- [Go](https://github.com/frankhjung/go-wordpuzzle)
+- [Haskell](https://github.com/frankhjung/haskell-wordpuzzle)
+- [Java](https://github.com/frankhjung/java-wordpuzzle)
+- [Kotlin](https://github.com/frankhjung/kotlin-wordpuzzle)
+- [Python](https://github.com/frankhjung/python-wordpuzzle)
+
 ## Licence
 
 This project is licensed under the

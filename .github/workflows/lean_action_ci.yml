@@ -35,7 +35,7 @@ jobs:
 
       - name: Run executable smoke-tests
         run: |
-          lake exe wordpuzzle
+          lake exe wordpuzzle -h
           lake exe wordpuzzle -s 4 -m c -l cadevrsoi
 
       - name: Build documentation
