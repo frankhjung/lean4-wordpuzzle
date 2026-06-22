@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactored `Puzzle` structure to embed mathematical proof fields ensuring
+  correctness-by-construction (e.g., `h_size`, `h_letters_unique`).
+- Updated CLI adapter to use the `require!` extension, making the `--letters`
+  and `--mandatory` flags strictly mandatory.
+- Reordered declarations to improve logical flow and dependency order.
 - Corrected and updated inline documentation for the `solve` function in
   `Wordpuzzle/Basic.lean` and the `mkTestPuzzle` helper in `Test/Basic.lean`
   to fix typos and align with the signature refactoring.

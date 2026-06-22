@@ -41,11 +41,10 @@ graph TD
 
 ### The Correctness-by-Construction Puzzle Type
 
-In [`Wordpuzzle/Basic.lean`](
-file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean), the `Puzzle`
-type is defined as a structure bundling both the configuration data and
-mathematical proofs of its invariants. This correctness-by-construction pattern
-guarantees that any instanced `Puzzle` is valid:
+In [`Wordpuzzle/Basic.lean`](Wordpuzzle/Basic.lean), the `Puzzle` type
+is defined as a structure bundling both the configuration data and
+mathematical proofs of its invariants. This correctness-by-construction
+pattern guarantees that any instanced `Puzzle` is valid:
 
 - `repeats : Bool` — Letter reuse flag.
 - `size : Nat` — Minimum word length.
@@ -59,9 +58,8 @@ guarantees that any instanced `Puzzle` is valid:
 - `h_mandatory_in` — Proof that the mandatory character is in the pool.
 
 Because the constructor `Puzzle.mk` is private, instances can only be
-created via [`validate`](
-file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean#L117-L141). This
-smart constructor runs the validators and uses Lean's decidability to produce
+created via [`validate`](Wordpuzzle/Basic.lean#L117-L141). This smart
+constructor runs the validators and uses Lean's decidability to produce
 the required proof terms at runtime.
 
 ## Installation & Building

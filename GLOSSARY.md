@@ -30,7 +30,7 @@ one of the puzzle's letters.
 The validated configuration containing the allowed letters, the mandatory
 letter, the minimum word size, and the repeat permission.
 
-In accordance with Lean 4's type safety guidelines, the [`Puzzle`](Basic.lean#L24-L56) type
+In accordance with Lean 4's type safety guidelines, the [`Puzzle`](Wordpuzzle/Basic.lean#L24-L56) type
 embeds both the configuration values and formal mathematical proofs of their
 validity as fields:
 
@@ -42,7 +42,7 @@ validity as fields:
 6. `h_mandatory_in` — Proof that the mandatory character is in the list.
 
 The structure constructor is `private`, meaning a `Puzzle` can only be
-instantiated via the [`validate`](Basic.lean#L117-L141) smart
+instantiated via the [`validate`](Wordpuzzle/Basic.lean#L117-L141) smart
 constructor. Once validated, all components of the application can safely
 rely on these invariants without re-verification.
 

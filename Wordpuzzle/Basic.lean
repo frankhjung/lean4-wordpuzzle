@@ -56,10 +56,13 @@ structure Puzzle where
 
 instance : Inhabited Puzzle where
   default := {
+    -- need valid (placeholder) examples for compile proof
     repeats := false
     size := 4
-    letters := "abcd"
-    mandatory := 'a'
+    letters := "cadevrsoi"
+    mandatory := 'c'
+    -- `by rfl` discharges definitional equality proofs, while `by decide`
+    -- proves decidable propositions where reduction is blocked.
     h_size := by decide
     h_letters_len := by decide
     h_letters_lower := by rfl
@@ -117,7 +120,7 @@ def validateMandatory (mandatory : Char) (letters : String) :
   let conds := [
     (!isAsciiLower mandatory,
      "Mandatory letter must be an ASCII lowercase letter (a-z)"),
-    (!letters.contains mandatory,
+    (!letters.toList.contains mandatory,
      "Mandatory letter must be one of the puzzle letters")
   ]
   conds.filterMap (fun (cond, msg) => if cond then some msg else none)
