@@ -3,7 +3,7 @@
 CD	:= cd
 LEAN_PREFIX := $(shell lean --print-prefix 2>/dev/null)
 ifeq ($(LEAN_PREFIX),)
-$(error Lean not found. Please ensure Lean 4 is installed and available in your PATH.)
+$(error Lean not found. Ensure Lean 4 is installed and available on your PATH.)
 endif
 LAKE	:= LD_LIBRARY_PATH="$(LEAN_PREFIX)/lib" lake
 RM	:= rm -rf

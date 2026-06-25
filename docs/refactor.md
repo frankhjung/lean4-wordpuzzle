@@ -1,16 +1,19 @@
 # Refactor Wordpuzzle
 
-I want to refactor Wordpuzzle to be simpler. At the moment it loads the dictionary into a list, then processes that list.
+I want to refactor Wordpuzzle to be simpler. At the moment it loads the
+dictionary into a list, then processes that list.
 
 ## Refactor Plan
 
 Instead I'd like to have the main function `Wordpuzzle.lean` to:
 
 - dictionary is not required by the `Puzzle` structure
-- check commandline arguments (as it does curently) using validation function calls in the `Wordpuzzle/Basic.lean` module
+- check commandline arguments (as it does curently) using validation function
+  calls in the `Wordpuzzle/Basic.lean` module
   - print all error messages at once, exit with code 1 otherwise continue
 - read the dictionary as a stream of words
-- filter each word via a `solve` function in `Wordpuzzle/Basic.lean` with arguments:
+- filter each word via a `solve` function in `Wordpuzzle/Basic.lean` with
+  arguments:
   - the `Puzzle` structure
   - the current dictionary "word"
   - then - print the word on success
@@ -79,5 +82,41 @@ and tasks:
 [wp-basic]: file:///home/frank/dev/lean/wordpuzzle/Wordpuzzle/Basic.lean
 [test-util]: file:///home/frank/dev/lean/wordpuzzle/Test/Util.lean
 [test-basic]: file:///home/frank/dev/lean/wordpuzzle/Test/Basic.lean
-[ci-wf]:
-  file:///home/frank/dev/lean/wordpuzzle/.github/workflows/lean_action_ci.yml
+[ci-wf]: file:///home/frank/dev/lean/wordpuzzle/.github/workflows/lean_action_ci.yml
+
+## Executed Validation Refactoring Plan
+
+This refactoring was executed successfully with the following design choices
+and tasks:
+
+### Design Decisions Resolved
+
+1. **Validation & Proof Unification**:
+   Unified runtime validation and type-level proof derivation using a custom
+   applicative `Validated` type. Defined it with universe polymorphism (`Sort
+   v`) to resolve universe sort mismatches between propositions (`Prop`) and
+   types (`Type`).
+2. **Split Validators**:
+   Separated multi-concern validators into six single-purpose, proof-bearing
+   helpers (e.g. `validateSize`, `validateLettersLen`, etc.) to enforce
+   single-responsibility and exact structural mapping to `Puzzle` invariants.
+3. **Stable Interface**:
+   Maintained the public interface signature `Except (List String) Puzzle` for
+   the `validate` function. Translating from `Validated` at the very end of
+   `validate` prevented cascading refactoring changes in `Wordpuzzle.lean`
+   and integration tests.
+
+### Tasks Completed
+
+1. **Refactor Basic.lean**:
+   - Introduced `Validated` type and its custom sequencing `<*>` operator.
+   - Replaced old validators with six new proof-bearing validator helpers.
+   - Refactored `validate` to use the new applicative validation pipeline.
+2. **Refactor Tests**:
+   - Updated `Test/Basic.lean` to define universe polymorphic test assertions
+     `assertValid` and `assertInvalid`.
+   - Replaced the old combined validator tests with separate unit tests for
+     the six new validator helpers.
+3. **Update Documentation**:
+   - Added `Validated` to `GLOSSARY.md`.
+   - Updated `docs/refactor.md` to document the validation refactoring.

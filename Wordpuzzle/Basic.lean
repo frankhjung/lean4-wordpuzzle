@@ -21,6 +21,42 @@ def hasDuplicates {α : Type} [BEq α] : List α → Bool
   | [] => false
   | x :: xs => xs.contains x || hasDuplicates xs
 
+/-- An error-accumulating validation type. -/
+inductive Validated (ε : Type u) (α : Sort v) where
+  /-- Construct an invalid validation containing a list of errors. -/
+  | invalid (errs : List ε) : Validated ε α
+  /-- Construct a valid validation containing the computed proof/value. -/
+  | valid (val : α) : Validated ε α
+
+namespace Validated
+
+/-- Sequencing operator for validation accumulation.
+
+Applies the function in `f` to the value in `x` if both are valid.
+If either is invalid, accumulates the error messages. -/
+def seq {α β : Sort _} (f : Validated ε (α → β))
+    (x : Validated ε α) : Validated ε β :=
+  match f with
+  | invalid errs1 =>
+    match x with
+    | invalid errs2 => invalid (errs1 ++ errs2)
+    | valid _ => invalid errs1
+  | valid f' =>
+    match x with
+    | invalid errs2 => invalid errs2
+    | valid x' => valid (f' x')
+
+local infixl:60 " <*> " => seq
+
+/-- Converts a `Validated` result into a standard `Except` result. -/
+def toExcept {α : Type _} : Validated ε α → Except (List ε) α
+  | invalid errs => Except.error errs
+  | valid val => Except.ok val
+
+end Validated
+
+local infixl:60 " <*> " => Validated.seq
+
 /-- Represents a word-puzzle configuration.
 
 Fields:
@@ -73,55 +109,54 @@ deriving instance Repr for Puzzle
 
 attribute [nolint unusedArguments] instReprPuzzle.repr
 
-/-- Validates the `size` field of a puzzle.
-
-Returns an empty list on success, or a singleton list containing a
-human-readable error message when `size` falls outside [4, 9]. -/
-def validateSize (size : Nat) : List String :=
-  if size < 4 || size > 9 then
-    [s!"Size must be between 4 and 9 (got {size})"]
+/-- Validates that the minimum word size is between 4 and 9 inclusive. -/
+def validateSize (size : Nat) : Validated String (4 ≤ size ∧ size ≤ 9) :=
+  if h : 4 ≤ size ∧ size ≤ 9 then
+    Validated.valid h
   else
-    []
+    Validated.invalid [s!"Size must be between 4 and 9 (got {size})"]
 
-/-- Validates the `letters` field of a puzzle.
+/-- Validates that the letters list contains between 4 and 9 characters. -/
+def validateLettersLen (letters : String) :
+    Validated String (4 ≤ letters.length ∧ letters.length ≤ 9) :=
+  if h : 4 ≤ letters.length ∧ letters.length ≤ 9 then
+    Validated.valid h
+  else
+    Validated.invalid
+      [s!"Letters length must be between 4 and 9 (got {letters.length})"]
 
-Checks that:
-1. The length of `letters` is in [4, 9].
-2. Every character is an ASCII lowercase letter (`a`-`z`).
-3. No character appears more than once.
+/-- Validates that all letters are ASCII lowercase characters. -/
+def validateLettersLower (letters : String) :
+    Validated String (letters.toList.all isAsciiLower = true) :=
+  if h : letters.toList.all isAsciiLower = true then
+    Validated.valid h
+  else
+    Validated.invalid ["Letters must all be ASCII lowercase letters (a-z)"]
 
-Returns a (possibly empty) list of error messages, one per failed
-condition. -/
-def validateLetters (letters : String) : List String :=
-  let len := letters.length
-  let chars := letters.toList
-  let conds := [
-    (len < 4 || len > 9,
-     s!"Letters length must be between 4 and 9 (got {len})"),
-    (!chars.all isAsciiLower,
-     "Letters must all be ASCII lowercase letters (a-z)"),
-    (hasDuplicates chars,
-     "Letters must be unique")
-  ]
-  conds.filterMap (fun (cond, msg) => if cond then some msg else none)
+/-- Validates that the letters pool contains no duplicate characters. -/
+def validateLettersUnique (letters : String) :
+    Validated String (hasDuplicates letters.toList = false) :=
+  if h : hasDuplicates letters.toList = false then
+    Validated.valid h
+  else
+    Validated.invalid ["Letters must be unique"]
 
-/-- Validates the `mandatory` field of a puzzle.
+/-- Validates that the mandatory letter is an ASCII lowercase character. -/
+def validateMandatoryLower (mandatory : Char) :
+    Validated String (isAsciiLower mandatory = true) :=
+  if h : isAsciiLower mandatory = true then
+    Validated.valid h
+  else
+    Validated.invalid
+      ["Mandatory letter must be an ASCII lowercase letter (a-z)"]
 
-Checks that:
-1. `mandatory` is an ASCII lowercase letter (`a`–`z`).
-2. `mandatory` appears in `letters`.
-
-Returns a (possibly empty) list of error messages, one per failed
-condition. -/
-def validateMandatory (mandatory : Char) (letters : String) :
-    List String :=
-  let conds := [
-    (!isAsciiLower mandatory,
-     "Mandatory letter must be an ASCII lowercase letter (a-z)"),
-    (!letters.toList.contains mandatory,
-     "Mandatory letter must be one of the puzzle letters")
-  ]
-  conds.filterMap (fun (cond, msg) => if cond then some msg else none)
+/-- Validates that the mandatory letter is present in the letters pool. -/
+def validateMandatoryIn (mandatory : Char) (letters : String) :
+    Validated String (letters.toList.contains mandatory = true) :=
+  if h : letters.toList.contains mandatory = true then
+    Validated.valid h
+  else
+    Validated.invalid ["Mandatory letter must be one of the puzzle letters"]
 
 /-- Constructs a validated `Puzzle`, or returns accumulated errors.
 
@@ -130,29 +165,18 @@ message.  Returns `Except.ok puzzle` when there are no errors, or
 `Except.error errs` with the full list of messages otherwise. -/
 def validate (repeats : Bool) (size : Nat) (letters : String)
     (mandatory : Char) : Except (List String) Puzzle :=
-  let errs := validateSize size ++
-              validateLetters letters ++
-              validateMandatory mandatory letters
-  if errs.isEmpty then
-    if h : (4 ≤ size ∧ size ≤ 9) ∧
-           (4 ≤ letters.length ∧ letters.length ≤ 9) ∧
-           (letters.toList.all isAsciiLower = true) ∧
-           (hasDuplicates letters.toList = false) ∧
-           (isAsciiLower mandatory = true) ∧
-           (letters.toList.contains mandatory = true) then
-      Except.ok {
-        repeats, size, letters, mandatory,
-        h_size := h.1,
-        h_letters_len := h.2.1,
-        h_letters_lower := h.2.2.1,
-        h_letters_unique := h.2.2.2.1,
-        h_mandatory_lower := h.2.2.2.2.1,
-        h_mandatory_in := h.2.2.2.2.2
-      }
-    else
-      Except.error errs
-  else
-    Except.error errs
+  let pipeline := Validated.valid (fun h_size h_len h_lower h_unique h_m_lower h_m_in =>
+    { repeats, size, letters, mandatory,
+      h_size, h_letters_len := h_len, h_letters_lower := h_lower,
+      h_letters_unique := h_unique, h_mandatory_lower := h_m_lower,
+      h_mandatory_in := h_m_in })
+    <*> validateSize size
+    <*> validateLettersLen letters
+    <*> validateLettersLower letters
+    <*> validateLettersUnique letters
+    <*> validateMandatoryLower mandatory
+    <*> validateMandatoryIn mandatory letters
+  pipeline.toExcept
 
 /-- Solves a word puzzle for a single candidate word.
 

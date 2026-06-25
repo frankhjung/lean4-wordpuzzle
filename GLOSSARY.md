@@ -65,3 +65,10 @@ The pure function (`solve`) that checks a single candidate word from the
 dictionary against the puzzle configuration. It takes a `Puzzle` and a
 `String` ("word") and returns an `Option String`, with no monadic
 effects.
+
+## Validated
+
+An error-accumulating validation functor type (`Validated ε α`) that either
+contains a list of errors of type `ε` or a valid value/proof of type `α`. Used to
+collect multiple validation failures in one pass and compose them using an
+applicative sequencing style.
