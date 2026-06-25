@@ -61,14 +61,12 @@ instance : Inhabited Puzzle where
     size := 4
     letters := "cadevrsoi"
     mandatory := 'c'
-    -- `by rfl` discharges definitional equality proofs, while `by decide`
-    -- proves decidable propositions where reduction is blocked.
     h_size := by decide
     h_letters_len := by decide
     h_letters_lower := by rfl
     h_letters_unique := by rfl
     h_mandatory_lower := by rfl
-    h_mandatory_in := by decide
+    h_mandatory_in := by rfl
   }
 
 deriving instance Repr for Puzzle
