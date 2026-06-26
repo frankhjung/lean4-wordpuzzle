@@ -226,6 +226,12 @@ def testValidate (st : IO.Ref State) : IO Unit := do
     true 4 "abcd" 'a'
     "valid input with repeats=true"
 
+  -- Validate threads repeats=false successfully.
+  assertValidOk st
+    (validate false 4 "abcd" 'a')
+    false 4 "abcd" 'a'
+    "valid input with repeats=false"
+
 /-!
 ## solve
 -/

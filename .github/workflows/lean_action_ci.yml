@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Build and lint the project
+      - name: Build, test and lint the project
         id: build-lean
         uses: leanprover/lean-action@v1
 
@@ -47,8 +47,11 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Build and lint the project
+      - name: Re-build the project
         uses: leanprover/lean-action@v1
+        with:
+          test: false
+          lint: false
 
       - name: Build documentation
         uses: leanprover-community/docgen-action@main

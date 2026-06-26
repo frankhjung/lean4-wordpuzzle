@@ -12,7 +12,7 @@ RM	:= rm -rf
 
 default: build lint test ## Default goal: build, test and lint the project
 
-all: build test lint doc exe ## Build, test document and run the project
+all: build lint test doc exe ## Build, test document and run the project
 
 help: ## Show this help message
 	@echo ""
