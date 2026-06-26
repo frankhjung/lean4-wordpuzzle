@@ -207,6 +207,25 @@ def testValidate (st : IO.Ref State) : IO Unit := do
     ]
     "mandatory letter not lowercase"
 
+  -- All six validation errors triggered simultaneously.
+  assertValidErr st
+    (validate false 1 "aAa" '9')
+    [
+      "Size must be between 4 and 9 (got 1)",
+      "Letters length must be between 4 and 9 (got 3)",
+      "Letters must all be ASCII lowercase letters (a-z)",
+      "Letters must be unique",
+      "Mandatory letter must be an ASCII lowercase letter (a-z)",
+      "Mandatory letter must be one of the puzzle letters"
+    ]
+    "all six validation errors triggered"
+
+  -- Validate threads repeats=true successfully.
+  assertValidOk st
+    (validate true 4 "abcd" 'a')
+    true 4 "abcd" 'a'
+    "valid input with repeats=true"
+
 /-!
 ## solve
 -/
@@ -218,6 +237,8 @@ def testSolve (st : IO.Ref State) : IO Unit := do
 
   assertEqual st
     (solve puzzle "abcd") (some "abcd") "solve abcd"
+  assertEqual st
+    (solve puzzle "abc") none "solve abc (too short, below size 4)"
   assertEqual st
     (solve puzzle "abcc") none "solve abcc (duplicates)"
   assertEqual st

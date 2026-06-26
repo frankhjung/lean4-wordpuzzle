@@ -1,4 +1,3 @@
-import Wordpuzzle.Basic
 
 namespace Test.Util
 
@@ -22,9 +21,6 @@ def assertEqual {α : Type} [BEq α] [ToString α]
   else
     st.set { s with total := total, fails := s.fails + 1 }
     IO.println s!"[FAIL] {msg}: expected {expected}, got {actual}"
-
-def assertTrue (st : IO.Ref State) (actual : Bool) (msg : String) : IO Unit := do
-  assertEqual st actual true msg
 
 /-- Prints a summary of the test results to standard output. -/
 def summary (st : IO.Ref State) : IO Unit := do

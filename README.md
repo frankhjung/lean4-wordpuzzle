@@ -58,7 +58,7 @@ pattern guarantees that any instanced `Puzzle` is valid:
 - `h_mandatory_in` — Proof that the mandatory character is in the pool.
 
 Because the constructor `Puzzle.mk` is private, instances can only be
-created via [`validate`](Wordpuzzle/Basic.lean#L117-L141). This smart
+created via [`validate`](Wordpuzzle/Basic.lean). This smart
 constructor runs the validators and uses Lean's decidability to produce
 the required proof terms at runtime.
 

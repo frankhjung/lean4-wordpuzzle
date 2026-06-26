@@ -20,9 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   panics.
 - Expanded `GLOSSARY.md` with new domain terms: Capability Interface, Letters,
   Repeats, and Smart Constructor.
+- Added unit tests for the all-six-error validation boundary, the repeats
+  validation configuration, and the short-word edge case in solver checks.
 
 ### Changed
 
+- Cleaned up `Test/Util.lean` by removing unused import `Wordpuzzle.Basic` and the
+  redundant `assertTrue` helper.
+- Fixed stale line anchors in `README.md` and `GLOSSARY.md`.
 - Refactored `Puzzle` structure to embed mathematical proof fields ensuring
   correctness-by-construction (e.g., `h_size`, `h_letters_unique`).
 - Updated CLI adapter to use the `require!` extension, making the `--letters`
