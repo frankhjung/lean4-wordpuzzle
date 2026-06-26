@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.0-dev [Unreleased]
+## [0.1.0] - 2026-06-26
 
 ### Added
 
@@ -20,9 +20,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   panics.
 - Expanded `GLOSSARY.md` with new domain terms: Capability Interface, Letters,
   Repeats, and Smart Constructor.
+- Added unit tests for the all-six-error validation boundary, the repeats
+  validation configuration, and the short-word edge case in solver checks.
+- Added automated GitHub Releases creation for tagged workflow runs,
+  attaching built executable and documentation binaries.
 
 ### Changed
 
+- Pinned docgen-action to a specific commit SHA in lean_action_ci.yml to
+  ensure reproducible documentation builds.
+- Refactored CI workflow permissions to enforce the principle of least
+  privilege by disabling global permissions and specifying them per job.
+- Fixed GitHub Pages deployment issues by removing redundant artifact
+  upload and deploy steps.
+- Fixed typechecking error in the Validated namespace in
+  Wordpuzzle/Basic.lean by adding implicit type variable binders.
+- Updated markdown documentation file links in GLOSSARY.md and other
+  files to use repo-relative paths instead of absolute local file links.
+- Cleaned up `Test/Util.lean` by removing unused import `Wordpuzzle.Basic` and the
+  redundant `assertTrue` helper.
+- Fixed stale line anchors in `README.md` and `GLOSSARY.md`.
 - Refactored `Puzzle` structure to embed mathematical proof fields ensuring
   correctness-by-construction (e.g., `h_size`, `h_letters_unique`).
 - Updated CLI adapter to use the `require!` extension, making the `--letters`

@@ -62,12 +62,12 @@ partial def streamPuzzle (handle : IO.FS.Handle) (puzzle : Puzzle)
 
 /-- CLI command handler for the word-puzzle solver.
 
-Extracts flag values from the parsed `Cli` arguments, validates them
-via `Wordpuzzle.validate`, and streams the dictionary to filter
-words via `Wordpuzzle.solve`.
+Extracts flag values from the parsed `Cli` arguments, validates them via
+`Wordpuzzle.validate`, and streams the dictionary to filter words via
+`Wordpuzzle.solve`.
 
-Returns exit code `0` on success, or `1` when validation fails, the
-dictionary is missing, or an I/O error occurs. -/
+Returns exit code `0` on success, or `1` when validation fails, the dictionary
+is missing, or an I/O error occurs. -/
 def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
   let repeats := p.hasFlag "repeats"
   let size := (p.flag! "size").as! Nat
@@ -92,7 +92,7 @@ def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
 
 /-- The top-level `Cli` command descriptor for the word-puzzle solver.
 
-Defines the command name, version (`0.1.0-dev`), description, all
+Defines the command name, version (`0.1.0`), description, all
 supported flags, and default values for `size` and `dictionary`. -/
 def wordpuzzleCmd : Cmd := `[Cli|
   wordpuzzleCmd VIA runWordpuzzleCmd; [appVersion]

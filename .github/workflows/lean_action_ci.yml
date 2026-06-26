@@ -4,12 +4,13 @@ name: lean-action-ci
 on:
   push:
     branches:
-      - main
+      - "**"
+    tags:
+      - "*"
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,6 +18,27 @@ concurrency:
 
 jobs:
   build:
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Build, test and lint the project
+        id: build-lean
+        uses: leanprover/lean-action@v1
+
+      - name: Run executable smoke-tests
+        run: |
+          lake exe wordpuzzle -h
+          lake exe wordpuzzle -s 4 -m c -l cadevrsoi
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,16 +51,47 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Build and lint the project
-        id: build-lean
+      - name: Re-build the project
         uses: leanprover/lean-action@v1
-
-      - name: Run executable smoke-tests
-        run: |
-          lake exe wordpuzzle -h
-          lake exe wordpuzzle -s 4 -m c -l cadevrsoi
+        with:
+          test: false
+          lint: false
 
       - name: Build documentation
-        if: github.ref == 'refs/heads/main'
-        uses: leanprover-community/docgen-action@main
+        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
         continue-on-error: true
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Build project and executable
+        uses: leanprover/lean-action@v1
+        with:
+          test: false
+          lint: false
+          build-args: wordpuzzle
+
+      - name: Build documentation
+        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
+        with:
+          deploy: false
+        continue-on-error: true
+
+      - name: Create release archive
+        run: |
+          mkdir -p release/doc
+          cp -r docbuild/.lake/build/doc/* release/doc/ || true
+          cp .lake/build/bin/wordpuzzle release/
+          tar -czvf wordpuzzle-linux.tar.gz -C release .
+
+      - name: Upload GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: wordpuzzle-linux.tar.gz

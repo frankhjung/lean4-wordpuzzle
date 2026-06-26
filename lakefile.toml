@@ -1,5 +1,5 @@
 name = "Wordpuzzle"
-version = "0.1.0-dev"              # see also Wordpuzzle.Config.appVersion
+version = "0.1.0"              # see also Wordpuzzle.Config.appVersion
 defaultTargets = ["Wordpuzzle"]
 lintDriver = "batteries/runLinter"
 testDriver = "wordpuzzle_test"

@@ -30,21 +30,25 @@ one of the puzzle's letters.
 The validated configuration containing the allowed letters, the mandatory
 letter, the minimum word size, and the repeat permission.
 
-In accordance with Lean 4's type safety guidelines, the [`Puzzle`](Wordpuzzle/Basic.lean#L24-L56) type
-embeds both the configuration values and formal mathematical proofs of their
-validity as fields:
+In accordance with Lean 4's type safety guidelines, the
+[`Puzzle`](Wordpuzzle/Basic.lean) type
+embeds both the configuration values and formal mathematical proofs of
+their validity as fields:
 
 1. `h_size` — Proof that `4 ≤ size ∧ size ≤ 9`.
 2. `h_letters_len` — Proof that the letters length is in `[4, 9]`.
 3. `h_letters_lower` — Proof that letters are ASCII lowercase.
 4. `h_letters_unique` — Proof that letters contain no duplicates.
-5. `h_mandatory_lower` — Proof that the mandatory character is ASCII lowercase.
-6. `h_mandatory_in` — Proof that the mandatory character is in the list.
+5. `h_mandatory_lower` — Proof that the mandatory character is ASCII
+   lowercase.
+6. `h_mandatory_in` — Proof that the mandatory character is in the
+   list.
 
 The structure constructor is `private`, meaning a `Puzzle` can only be
-instantiated via the [`validate`](Wordpuzzle/Basic.lean#L117-L141) smart
-constructor. Once validated, all components of the application can safely
-rely on these invariants without re-verification.
+instantiated via the
+[`validate`](Wordpuzzle/Basic.lean)
+smart constructor. Once validated, all components of the application can
+safely rely on these invariants without re-verification.
 
 ## Repeats
 
@@ -65,3 +69,10 @@ The pure function (`solve`) that checks a single candidate word from the
 dictionary against the puzzle configuration. It takes a `Puzzle` and a
 `String` ("word") and returns an `Option String`, with no monadic
 effects.
+
+## Validated
+
+An error-accumulating validation functor type (`Validated ε α`) that either
+contains a list of errors of type `ε` or a valid value/proof of type `α`. Used to
+collect multiple validation failures in one pass and compose them using an
+applicative sequencing style.
