@@ -263,7 +263,7 @@ def testSolve (st : IO.Ref State) : IO Unit := do
 
 def testVersion (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing version extraction"
-  assertEqual st appVersion "0.1.0-dev" "appVersion matches lakefile"
+  assertEqual st appVersion "0.1.0" "appVersion matches lakefile"
 
 /-!
 ## Entry point

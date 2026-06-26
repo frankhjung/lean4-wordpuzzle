@@ -92,7 +92,7 @@ def runWordpuzzleCmd (p : Parsed) : IO UInt32 := do
 
 /-- The top-level `Cli` command descriptor for the word-puzzle solver.
 
-Defines the command name, version (`0.1.0-dev`), description, all
+Defines the command name, version (`0.1.0`), description, all
 supported flags, and default values for `size` and `dictionary`. -/
 def wordpuzzleCmd : Cmd := `[Cli|
   wordpuzzleCmd VIA runWordpuzzleCmd; [appVersion]
