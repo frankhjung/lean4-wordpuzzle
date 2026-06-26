@@ -35,23 +35,16 @@ def assertErrors (st : IO.Ref State) (actual : List String)
   assertEqual st
     (toString (repr actual)) (toString (repr expected)) msg
 
-/-- Asserts that a `Validated` result is valid. -/
-def assertValid {α : Sort _} (st : IO.Ref State)
-    (actual : Wordpuzzle.Validated String α) (msg : String) : IO Unit := do
-  match actual with
-  | Wordpuzzle.Validated.valid _ => assertEqual st true true msg
-  | Wordpuzzle.Validated.invalid errs =>
-    assertEqual st (toString errs) "valid" msg
+/-- Asserts that a validator returns no errors. -/
+def assertNoErrors (st : IO.Ref State)
+    (actual : List String) (msg : String) : IO Unit :=
+  assertErrors st actual [] msg
 
-/-- Asserts that a `Validated` result is invalid with expected errors. -/
-def assertInvalid {α : Sort _} (st : IO.Ref State)
-    (actual : Wordpuzzle.Validated String α) (expected : List String)
-    (msg : String) : IO Unit := do
-  match actual with
-  | Wordpuzzle.Validated.valid _ =>
-    assertEqual st "valid" (toString expected) msg
-  | Wordpuzzle.Validated.invalid errs =>
-    assertErrors st errs expected msg
+/-- Asserts that a validator returns the expected errors. -/
+def assertHasErrors (st : IO.Ref State)
+    (actual : List String) (expected : List String)
+    (msg : String) : IO Unit :=
+  assertErrors st actual expected msg
 
 /-- Asserts that a `validate` call succeeds and that the resulting
 `Puzzle` fields match the expected values. -/
@@ -87,12 +80,12 @@ def assertValidErr (st : IO.Ref State)
 def testValidateSize (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateSize"
 
-  assertInvalid st (validateSize 3)
+  assertHasErrors st (validateSize 3)
     ["Size must be between 4 and 9 (got 3)"]
     "size 3 too small"
-  assertValid st (validateSize 4) "size 4 ok"
-  assertValid st (validateSize 9) "size 9 ok"
-  assertInvalid st (validateSize 10)
+  assertNoErrors st (validateSize 4) "size 4 ok"
+  assertNoErrors st (validateSize 9) "size 9 ok"
+  assertHasErrors st (validateSize 10)
     ["Size must be between 4 and 9 (got 10)"]
     "size 10 too large"
 
@@ -103,11 +96,11 @@ def testValidateSize (st : IO.Ref State) : IO Unit := do
 def testValidateLettersLen (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateLettersLen"
 
-  assertInvalid st (validateLettersLen "abc")
+  assertHasErrors st (validateLettersLen "abc")
     ["Letters length must be between 4 and 9 (got 3)"]
     "letters too short"
-  assertValid st (validateLettersLen "abcd") "letters 4 ok"
-  assertInvalid st (validateLettersLen "abcdefghij")
+  assertNoErrors st (validateLettersLen "abcd") "letters 4 ok"
+  assertHasErrors st (validateLettersLen "abcdefghij")
     ["Letters length must be between 4 and 9 (got 10)"]
     "letters too long"
 
@@ -118,11 +111,12 @@ def testValidateLettersLen (st : IO.Ref State) : IO Unit := do
 def testValidateLettersLower (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateLettersLower"
 
-  assertValid st (validateLettersLower "abcd") "letters all lowercase"
-  assertInvalid st (validateLettersLower "abcD")
+  assertNoErrors st (validateLettersLower "abcd")
+    "letters all lowercase"
+  assertHasErrors st (validateLettersLower "abcD")
     ["Letters must all be ASCII lowercase letters (a-z)"]
     "letters uppercase"
-  assertInvalid st (validateLettersLower "ab\u00e9d")
+  assertHasErrors st (validateLettersLower "ab\u00e9d")
     ["Letters must all be ASCII lowercase letters (a-z)"]
     "letters unicode lowercase rejected"
 
@@ -133,8 +127,9 @@ def testValidateLettersLower (st : IO.Ref State) : IO Unit := do
 def testValidateLettersUnique (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateLettersUnique"
 
-  assertValid st (validateLettersUnique "abcd") "letters unique"
-  assertInvalid st (validateLettersUnique "abca")
+  assertNoErrors st (validateLettersUnique "abcd")
+    "letters unique"
+  assertHasErrors st (validateLettersUnique "abca")
     ["Letters must be unique"] "letters duplicate"
 
 /-!
@@ -144,11 +139,12 @@ def testValidateLettersUnique (st : IO.Ref State) : IO Unit := do
 def testValidateMandatoryLower (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateMandatoryLower"
 
-  assertValid st (validateMandatoryLower 'a') "mandatory lowercase"
-  assertInvalid st (validateMandatoryLower 'A')
+  assertNoErrors st (validateMandatoryLower 'a')
+    "mandatory lowercase"
+  assertHasErrors st (validateMandatoryLower 'A')
     ["Mandatory letter must be an ASCII lowercase letter (a-z)"]
     "mandatory uppercase"
-  assertInvalid st (validateMandatoryLower '\u00e9')
+  assertHasErrors st (validateMandatoryLower '\u00e9')
     ["Mandatory letter must be an ASCII lowercase letter (a-z)"]
     "mandatory unicode lowercase rejected"
 
@@ -159,8 +155,9 @@ def testValidateMandatoryLower (st : IO.Ref State) : IO Unit := do
 def testValidateMandatoryIn (st : IO.Ref State) : IO Unit := do
   IO.println "\n[TEST] Testing Wordpuzzle.Basic.validateMandatoryIn"
 
-  assertValid st (validateMandatoryIn 'a' "abcd") "mandatory in letters"
-  assertInvalid st (validateMandatoryIn 'z' "abcd")
+  assertNoErrors st (validateMandatoryIn 'a' "abcd")
+    "mandatory in letters"
+  assertHasErrors st (validateMandatoryIn 'z' "abcd")
     ["Mandatory letter must be one of the puzzle letters"]
     "mandatory not in letters"
 

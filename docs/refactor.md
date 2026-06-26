@@ -86,37 +86,42 @@ and tasks:
 
 ## Executed Validation Refactoring Plan
 
-This refactoring was executed successfully with the following design choices
-and tasks:
+This refactoring was executed successfully with the following
+design choices and tasks:
 
 ### Design Decisions Resolved
 
-1. **Validation & Proof Unification**:
-   Unified runtime validation and type-level proof derivation using a custom
-   applicative `Validated` type. Defined it with universe polymorphism (`Sort
-   v`) to resolve universe sort mismatches between propositions (`Prop`) and
-   types (`Type`).
-2. **Split Validators**:
-   Separated multi-concern validators into six single-purpose, proof-bearing
-   helpers (e.g. `validateSize`, `validateLettersLen`, etc.) to enforce
-   single-responsibility and exact structural mapping to `Puzzle` invariants.
-3. **Stable Interface**:
-   Maintained the public interface signature `Except (List String) Puzzle` for
-   the `validate` function. Translating from `Validated` at the very end of
-   `validate` prevented cascading refactoring changes in `Wordpuzzle.lean`
-   and integration tests.
+1. **Accumulate-then-redecide**:
+   Each validator returns `List String` error messages. The
+   `validate` smart constructor concatenates all error lists,
+   then performs a single pass of nested decidable `if h :` checks
+   to extract the six proof witnesses required by `Puzzle`. When
+   no errors are present the decidable checks are guaranteed to
+   succeed.
+2. **Split validators**:
+   Separated multi-concern validators into six single-purpose
+   helpers (`validateSize`, `validateLettersLen`, etc.) to
+   enforce single-responsibility and exact structural mapping to
+   `Puzzle` invariants. Each validator checks the same decidable
+   proposition used by the corresponding `Puzzle` proof field.
+3. **Stable interface**:
+   Maintained the public interface signature
+   `Except (List String) Puzzle` for the `validate` function,
+   preventing cascading changes in `Wordpuzzle.lean` and
+   integration tests.
 
 ### Tasks Completed
 
 1. **Refactor Basic.lean**:
-   - Introduced `Validated` type and its custom sequencing `<*>` operator.
-   - Replaced old validators with six new proof-bearing validator helpers.
-   - Refactored `validate` to use the new applicative validation pipeline.
+   - Replaced old combined validators with six single-purpose
+     helpers returning `List String`.
+   - Refactored `validate` to accumulate errors then re-decide
+     for proof extraction.
 2. **Refactor Tests**:
-   - Updated `Test/Basic.lean` to define universe polymorphic test assertions
-     `assertValid` and `assertInvalid`.
-   - Replaced the old combined validator tests with separate unit tests for
-     the six new validator helpers.
+   - Updated `Test/Basic.lean` test assertions to work with
+     `List String` returns (`assertNoErrors`, `assertHasErrors`).
+   - Replaced the old combined validator tests with separate
+     unit tests for the six new validator helpers.
 3. **Update Documentation**:
-   - Added `Validated` to `GLOSSARY.md`.
-   - Updated `docs/refactor.md` to document the validation refactoring.
+   - Updated `GLOSSARY.md` and `docs/refactor.md` to document
+     the simplified validation approach.
