@@ -59,6 +59,8 @@ jobs:
 
       - name: Build documentation
         uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
+        with:
+          build-page: false
         continue-on-error: true
 
   release:
@@ -82,6 +84,7 @@ jobs:
         uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
         with:
           deploy: false
+          build-page: false
         continue-on-error: true
 
       - name: Create release archive

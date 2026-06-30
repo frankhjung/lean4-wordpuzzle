@@ -90,4 +90,4 @@
    "configFile": "lakefile.lean"}],
  "name": "docbuild",
  "lakeDir": ".lake",
- "fixedToolchain": false}
+ "fixedToolchain": true}

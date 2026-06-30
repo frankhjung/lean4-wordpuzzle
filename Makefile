@@ -36,7 +36,7 @@ exe: ## Run the `wordpuzzle` executable with a sample name
 
 lint: ## Run the linter
 	@$(LAKE) check-lint
-	@$(LAKE) lint --lint-all
+	@$(LAKE) lint --lint-only Wordpuzzle
 
 doc: ## Generate documentation using Lake
 	@$(CD) docbuild && \
