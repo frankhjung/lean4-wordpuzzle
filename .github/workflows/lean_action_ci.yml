@@ -46,10 +46,14 @@ jobs:
       id-token: write
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Re-build the project
         uses: leanprover/lean-action@v1
@@ -58,10 +62,18 @@ jobs:
           lint: false
 
       - name: Build documentation
-        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
+        run: |
+          cd docbuild
+          lake build Wordpuzzle:docs
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          build-page: false
-        continue-on-error: true
+          path: docbuild/.lake/build/doc
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -71,6 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          path: docbuild/.lake/build/doc
           fetch-depth: 1
 
       - name: Build project and executable
@@ -81,11 +94,9 @@ jobs:
           build-args: wordpuzzle
 
       - name: Build documentation
-        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3
-        with:
-          deploy: false
-          build-page: false
-        continue-on-error: true
+        run: |
+          cd docbuild
+          lake build Wordpuzzle:docs
 
       - name: Create release archive
         run: |
