@@ -83,7 +83,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          path: docbuild/.lake/build/doc
           fetch-depth: 1
 
       - name: Build project and executable

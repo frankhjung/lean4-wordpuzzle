@@ -41,16 +41,16 @@ help: ## Show this help message
 build: ## Build the project using Lake
 	@$(LAKE) build
 
+lint: build ## Run the linter
+	@$(LAKE) check-lint
+	@$(LAKE) lint --lint-only Wordpuzzle
+
 test: ## Run the tests using Lake
 	@$(LAKE) check-test
 	@$(LAKE) test
 
 exe: ## Run the `wordpuzzle` executable with a sample name
 	@$(LAKE) exe wordpuzzle -s 6 -m c -l cadevrsoi
-
-lint: ## Run the linter
-	@$(LAKE) check-lint
-	@$(LAKE) lint --lint-only Wordpuzzle
 
 doc: ## Generate documentation using Lake
 	@$(CD) docbuild && \
