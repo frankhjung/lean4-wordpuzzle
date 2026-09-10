@@ -3,6 +3,7 @@ defaultTargets = ["Wordpuzzle"]
 reservoir = false
 version = "0.1.0"
 packagesDir = "../.lake/packages"
+fixedToolchain = true
 
 [leanOptions]
 maxHeartbeats = 0
@@ -10,7 +11,7 @@ maxHeartbeats = 0
 [[require]]
 scope = "leanprover"
 name = "doc-gen4"
-rev = "main"
+rev = "v4.32.0"
 
 [[require]]
 name = "Wordpuzzle"

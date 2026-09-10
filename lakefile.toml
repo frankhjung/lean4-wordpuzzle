@@ -3,6 +3,7 @@ version = "0.1.0"              # see also Wordpuzzle.Config.appVersion
 defaultTargets = ["Wordpuzzle"]
 lintDriver = "batteries/runLinter"
 testDriver = "wordpuzzle_test"
+fixedToolchain = true
 
 [[lean_lib]]
 name = "Wordpuzzle"
@@ -23,6 +24,7 @@ root = "Test"
 [[require]]
 name = "batteries"
 scope = "leanprover-community"
+rev = "v4.32.0"
 
 [[require]]
 name = "cli"

@@ -15,12 +15,12 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover-community",
-   "rev": "fc38104235ab6cf8a448a74405aa258804ef4e36",
+   "rev": "023ce7d62a0531e22a5331e20b587817a80d49ff",
    "name": "batteries",
    "manifestFile": "lake-manifest.json",
-   "inputRev": "main",
+   "inputRev": "v4.32.0",
    "inherited": false,
    "configFile": "lakefile.toml"}],
  "name": "Wordpuzzle",
  "lakeDir": ".lake",
- "fixedToolchain": false}
+ "fixedToolchain": true}
